@@ -259,13 +259,45 @@ html(
         background:linear-gradient(145deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
         text-align:left;
     }
-    .feature-icon { width:42px; height:42px; display:grid; place-items:center; border-radius:12px; background:rgba(155,108,255,.13); border:1px solid rgba(155,108,255,.26); font-size:19px; }
+    .feature-icon { width:46px; height:46px; display:grid; place-items:center; border-radius:12px; background:rgba(155,108,255,.13); border:1px solid rgba(155,108,255,.26); position:relative; overflow:hidden; }
+    .heat-icon { display:grid; grid-template-columns:repeat(3,5px); gap:3px; }
+    .heat-icon i { width:5px; height:5px; border-radius:50%; background:#39e58c; box-shadow:0 0 5px rgba(57,229,140,.4); }
+    .heat-icon i:nth-child(2), .heat-icon i:nth-child(5), .heat-icon i:nth-child(6) { background:#f7c65b; }
+    .heat-icon i:nth-child(4) { background:#ff6577; box-shadow:0 0 7px rgba(255,101,119,.65); }
+    .mini-radar { width:25px; height:25px; position:relative; }
+    .mini-radar:before { content:""; position:absolute; inset:1px; clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%); background:#8b68e8; }
+    .mini-radar:after { content:""; position:absolute; inset:6px; clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%); background:#39e58c; opacity:.9; }
+    .pitch-icon { width:28px; height:24px; border:1px solid rgba(255,255,255,.55); border-radius:3px; position:relative; }
+    .pitch-icon:before { content:""; position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(255,255,255,.4); }
+    .pitch-icon:after { content:"•  •  •"; position:absolute; inset:3px 2px; color:#39e58c; font-size:9px; line-height:8px; letter-spacing:2px; }
     .feature-card h3 { font-size:18px; margin:18px 0 8px; }
     .feature-card p { font-size:14px; line-height:1.6; }
     .security-panel {
         margin-top:70px; border:1px solid rgba(155,108,255,.23); border-radius:20px; padding:32px;
         background:linear-gradient(120deg, rgba(155,108,255,.1), rgba(57,229,140,.045));
     }
+    .pricing-section { margin-top:86px; text-align:center; }
+    .pricing-section h2 { font-size:40px; letter-spacing:-1.7px; margin:12px auto 8px; }
+    .pricing-section > p { max-width:680px; margin:0 auto; line-height:1.65; }
+    .pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-top:28px; text-align:left; align-items:stretch; }
+    .price-card {
+        position:relative; border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:23px;
+        background:linear-gradient(145deg,rgba(20,39,63,.78),rgba(10,24,41,.82));
+        display:flex; flex-direction:column; min-height:390px;
+    }
+    .price-card.featured { border-color:rgba(155,108,255,.62); box-shadow:0 22px 60px rgba(111,75,232,.2); transform:translateY(-7px); }
+    .popular-badge { position:absolute; right:18px; top:18px; color:#d5c5ff; background:rgba(155,108,255,.14); border:1px solid rgba(155,108,255,.35); border-radius:999px; padding:5px 8px; font-size:8px; font-weight:800; letter-spacing:.4px; }
+    .plan-name { color:#fff; font-size:18px; font-weight:800; }
+    .plan-desc { color:#8296ad; font-size:12px; line-height:1.55; min-height:38px; margin-top:6px; }
+    .price { color:#fff; font-size:34px; font-weight:860; letter-spacing:-1.4px; margin:20px 0 3px; }
+    .price small { color:#8fa1b7; font-size:11px; font-weight:500; letter-spacing:0; }
+    .price-note { color:#73869b; font-size:9px; }
+    .plan-line { height:1px; background:rgba(255,255,255,.08); margin:18px 0; }
+    .feature-list { list-style:none; padding:0; margin:0; flex:1; }
+    .feature-list li { position:relative; color:#aab8c8; font-size:12px; padding:7px 0 7px 20px; }
+    .feature-list li:before { content:"✓"; position:absolute; left:0; color:#39e58c; font-weight:900; }
+    .plan-button { margin-top:18px; border-radius:10px; padding:11px 12px; text-align:center; color:#fff; font-size:12px; font-weight:780; border:1px solid rgba(155,108,255,.38); background:rgba(155,108,255,.12); }
+    .featured .plan-button { background:linear-gradient(135deg,#9b6cff,#6f4be8); border-color:#9b6cff; }
     .footer-note { margin-top:70px; border-top:1px solid var(--border); padding-top:25px; color:#73869b; font-size:12px; text-align:center; }
 
     div[data-testid="stMetric"] {
@@ -334,7 +366,8 @@ html(
     @media (max-width:900px) {
         .nav-links { display:none; }
         .stage-grid { grid-template-columns:1fr; }
-        .visual-features { grid-template-columns:1fr; }
+        .visual-features, .pricing-grid { grid-template-columns:1fr; }
+        .price-card.featured { transform:none; }
         .hero { padding-top:42px; }
         .hero h1 { letter-spacing:-2px; }
     }
@@ -472,19 +505,77 @@ def show_landing_page():
             <p class="section-copy">Oyuncu kartları, takım trendleri, görsel zaman çizelgesi ve uzman notları aynı futbol operasyonu diliyle sunulur.</p>
             <div class="visual-features">
                 <div class="feature-card">
-                    <div class="feature-icon">◉</div>
+                    <div class="feature-icon"><div class="heat-icon"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
                     <h3>Isı haritalı görsel kayıt</h3>
                     <p>Antrenman ve maç görsellerini oyuncunun değerlendirme zaman çizelgesiyle ilişkilendirin.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">◇</div>
+                    <div class="feature-icon"><div class="mini-radar"></div></div>
                     <h3>Spider chart profilleri</h3>
                     <p>Motivasyon, enerji, uyku, stres ve hazırlık değerlerini tek bakışta karşılaştırın.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">▦</div>
+                    <div class="feature-icon"><div class="pitch-icon"></div></div>
                     <h3>Takım ve kadro görünümü</h3>
                     <p>Futbol menajerlik sistemlerini çağrıştıran kartlarla takımın genel durumunu yönetin.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="pricing-section">
+            <div class="eyebrow">KULÜBÜNÜZE UYGUN PLAN</div>
+            <h2>Sahanın dışında da takımınızı güçlendirin.</h2>
+            <p>Amatör ve gelişmekte olan futbol kulüplerinin bütçesine uygun, aylık ve kulüp bazlı fiyatlandırma.</p>
+            <div class="pricing-grid">
+                <div class="price-card">
+                    <div class="plan-name">Standart</div>
+                    <div class="plan-desc">Temel wellbeing takibine başlamak isteyen amatör kulüpler için.</div>
+                    <div class="price">990 TL <small>/ ay</small></div>
+                    <div class="price-note">Kulüp başına · KDV hariç</div>
+                    <div class="plan-line"></div>
+                    <ul class="feature-list">
+                        <li>30 oyuncuya kadar kullanım</li>
+                        <li>Günlük kısa oyuncu anketleri</li>
+                        <li>Temel takım dashboard'u</li>
+                        <li>Oyuncu wellbeing skorları</li>
+                        <li>2 ekip kullanıcısı</li>
+                    </ul>
+                    <div class="plan-button">Standart Planı İncele</div>
+                </div>
+
+                <div class="price-card featured">
+                    <div class="popular-badge">EN ÇOK TERCİH EDİLEN</div>
+                    <div class="plan-name">Profesyonel</div>
+                    <div class="plan-desc">Daha ayrıntılı analiz ve uzman iş birliği isteyen kulüpler için.</div>
+                    <div class="price">1.990 TL <small>/ ay</small></div>
+                    <div class="price-note">Kulüp başına · KDV hariç</div>
+                    <div class="plan-line"></div>
+                    <ul class="feature-list">
+                        <li>60 oyuncuya kadar kullanım</li>
+                        <li>AI destekli değerlendirme özeti</li>
+                        <li>Spider chart oyuncu profilleri</li>
+                        <li>Görsel zaman çizelgesi ve ısı haritası</li>
+                        <li>7 ekip kullanıcısı</li>
+                        <li>PDF değerlendirme raporları</li>
+                    </ul>
+                    <div class="plan-button">Profesyonel Planı İncele</div>
+                </div>
+
+                <div class="price-card">
+                    <div class="plan-name">Premium</div>
+                    <div class="plan-desc">Akademi ve birden fazla takım yöneten kulüp yapıları için.</div>
+                    <div class="price">3.490 TL <small>/ ay</small></div>
+                    <div class="price-note">Kulüp başına · KDV hariç</div>
+                    <div class="plan-line"></div>
+                    <ul class="feature-list">
+                        <li>150 oyuncuya kadar kullanım</li>
+                        <li>A takım ve akademi yönetimi</li>
+                        <li>Gelişmiş takım karşılaştırmaları</li>
+                        <li>Özel rol ve erişim yetkileri</li>
+                        <li>20 ekip kullanıcısı</li>
+                        <li>Öncelikli destek ve onboarding</li>
+                    </ul>
+                    <div class="plan-button">Premium Planı İncele</div>
                 </div>
             </div>
         </section>
