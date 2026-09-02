@@ -732,16 +732,33 @@ def show_player_profile():
     c5.metric("Stres", player["stress"], "-3")
     c6.metric("Yorgunluk", player["fatigue"], "+2", delta_color="inverse")
 
-    html("""
+    html(f"""
     <div class="profile-grid">
         <div class="glass-card">
             <div class="glass-title"><b>Bireysel Spider Chart</b><span>SON 7 GÜN</span></div>
-            <svg class="radar-svg" viewBox="0 0 280 220">
-                <polygon class="radar-grid" points="140,25 214,67 214,153 140,195 66,153 66,67"/><polygon class="radar-grid" points="140,48 194,79 194,141 140,172 86,141 86,79"/><polygon class="radar-grid" points="140,72 174,91 174,129 140,148 106,129 106,91"/>
-                <line class="radar-axis" x1="140" y1="110" x2="140" y2="25"/><line class="radar-axis" x1="140" y1="110" x2="214" y2="67"/><line class="radar-axis" x1="140" y1="110" x2="214" y2="153"/><line class="radar-axis" x1="140" y1="110" x2="140" y2="195"/><line class="radar-axis" x1="140" y1="110" x2="66" y2="153"/><line class="radar-axis" x1="140" y1="110" x2="66" y2="67"/>
-                <polygon class="radar-shape" points="140,34 202,74 194,141 140,176 84,142 92,82"/>
-                <text class="radar-label" x="140" y="14" text-anchor="middle">MOTİVASYON</text><text class="radar-label" x="218" y="62">ENERJİ</text><text class="radar-label" x="218" y="160">UYKU</text><text class="radar-label" x="140" y="211" text-anchor="middle">HAZIRLIK</text><text class="radar-label" x="18" y="160">YORGUNLUK</text><text class="radar-label" x="34" y="62">STRES</text>
-            </svg>
+            <div class="radar-wrap">
+                <div class="css-radar" role="img" aria-label="Oyuncunun altı metrikli spider chart görünümü">
+                    <div class="radar-hex"></div>
+                    <div class="radar-hex mid"></div>
+                    <div class="radar-hex inner"></div>
+                    <div class="radar-fill"></div>
+                    <div class="radar-center"></div>
+                    <span class="radar-label-css rl-top">MOTİVASYON</span>
+                    <span class="radar-label-css rl-ur">ENERJİ</span>
+                    <span class="radar-label-css rl-lr">UYKU</span>
+                    <span class="radar-label-css rl-bottom">HAZIRLIK</span>
+                    <span class="radar-label-css rl-ll">YORGUNLUK</span>
+                    <span class="radar-label-css rl-ul">STRES</span>
+                </div>
+            </div>
+            <div class="score-grid">
+                <div class="score green"><span>Motivasyon</span><b>{player['motivation']}</b></div>
+                <div class="score cyan"><span>Enerji</span><b>{player['energy']}</b></div>
+                <div class="score purple"><span>Uyku</span><b>{player['sleep']}</b></div>
+                <div class="score green"><span>Hazırlık</span><b>{player['readiness']}</b></div>
+                <div class="score red"><span>Yorgunluk</span><b>{player['fatigue']}</b></div>
+                <div class="score yellow"><span>Stres</span><b>{player['stress']}</b></div>
+            </div>
         </div>
         <div class="glass-card">
             <div class="glass-title"><b>Öz-Bildirim İlişkili Duygusal Yük Haritası</b><span>BUGÜN</span></div>
