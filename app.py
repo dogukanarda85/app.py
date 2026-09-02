@@ -18,8 +18,8 @@ if "language" not in st.session_state:
 
 
 def html(content):
-    """Render indented HTML without Streamlit treating it as source code."""
-    st.markdown(textwrap.dedent(content), unsafe_allow_html=True)
+    """Render HTML directly, without Markdown interpreting nested blocks as code."""
+    st.html(textwrap.dedent(content))
 
 
 html(
@@ -182,13 +182,14 @@ html(
         background:rgba(247,198,91,.07); color:#dbe4ee; padding:11px; font-size:11px; line-height:1.5;
     }
 
-    .section { margin-top:86px; }
-    .section h2 { max-width:760px; font-size:40px; letter-spacing:-1.7px; margin:12px 0 10px; }
-    .section-copy { max-width:740px; line-height:1.7; }
+    .section { margin-top:86px; text-align:center; }
+    .section h2 { max-width:760px; font-size:40px; letter-spacing:-1.7px; margin:12px auto 10px; }
+    .section-copy { max-width:740px; line-height:1.7; margin:0 auto; }
     .visual-features { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-top:25px; }
     .feature-card {
         min-height:205px; border:1px solid var(--border); border-radius:17px; padding:22px;
         background:linear-gradient(145deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+        text-align:left;
     }
     .feature-icon { width:42px; height:42px; display:grid; place-items:center; border-radius:12px; background:rgba(155,108,255,.13); border:1px solid rgba(155,108,255,.26); font-size:19px; }
     .feature-card h3 { font-size:18px; margin:18px 0 8px; }
@@ -198,6 +199,65 @@ html(
         background:linear-gradient(120deg, rgba(155,108,255,.1), rgba(57,229,140,.045));
     }
     .footer-note { margin-top:70px; border-top:1px solid var(--border); padding-top:25px; color:#73869b; font-size:12px; text-align:center; }
+
+    div[data-testid="stMetric"] {
+        background:linear-gradient(145deg, rgba(20,39,63,.78), rgba(11,26,44,.76));
+        border:1px solid rgba(255,255,255,.1);
+        border-radius:16px;
+        padding:18px;
+        box-shadow:0 16px 40px rgba(0,0,0,.18);
+        backdrop-filter:blur(16px);
+    }
+    div[data-testid="stMetric"] label { color:#8fa1b7 !important; }
+    div[data-testid="stMetricValue"] { color:#fff; }
+    .glass-card {
+        border:1px solid rgba(255,255,255,.1);
+        background:linear-gradient(145deg, rgba(20,39,63,.79), rgba(10,24,41,.76));
+        border-radius:18px; padding:18px; box-shadow:0 20px 55px rgba(0,0,0,.2);
+        backdrop-filter:blur(16px);
+    }
+    .glass-title { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+    .glass-title b { color:#eef3f9; font-size:14px; }
+    .glass-title span { color:#8296ad; font-size:10px; }
+    .analytics-grid { display:grid; grid-template-columns:1.12fr .88fr; gap:15px; margin:20px 0 18px; }
+    .trend-svg { width:100%; height:255px; display:block; }
+    .gridline { stroke:rgba(255,255,255,.08); stroke-width:1; }
+    .trend-purple { fill:none; stroke:#9b6cff; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+    .trend-green { fill:none; stroke:#39e58c; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+    .area-purple { fill:url(#purpleArea); }
+    .chart-label { fill:#8296ad; font:9px Arial,sans-serif; }
+    .chart-legend { display:flex; gap:14px; color:#91a3b8; font-size:10px; margin-top:-8px; }
+    .legend-dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:5px; }
+    .player-strip { display:flex; gap:12px; align-items:center; }
+    .avatar {
+        width:43px; height:43px; display:grid; place-items:center; border-radius:12px;
+        background:linear-gradient(145deg, rgba(155,108,255,.25), rgba(57,229,140,.12));
+        border:1px solid rgba(155,108,255,.3); color:#fff; font-weight:800;
+    }
+    .player-info b { color:#fff; display:block; font-size:13px; }
+    .player-info span { color:#8194aa; font-size:10px; }
+    .status-pill { display:inline-block; border-radius:999px; padding:5px 8px; font-size:9px; font-weight:750; }
+    .status-pill.good { color:#56efa0; background:rgba(57,229,140,.09); }
+    .status-pill.watch { color:#ffd46f; background:rgba(247,198,91,.1); }
+    .profile-head {
+        display:grid; grid-template-columns:150px 1fr; gap:22px; align-items:center;
+        border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:20px;
+        background:linear-gradient(130deg, rgba(155,108,255,.13), rgba(15,33,54,.75));
+    }
+    .profile-photo {
+        width:150px; height:170px; border-radius:15px; background:
+        linear-gradient(0deg, rgba(7,17,31,.45), rgba(7,17,31,.05)),
+        url('https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=500&q=82') center/cover;
+    }
+    .profile-name { color:#fff; font-size:32px; font-weight:830; letter-spacing:-1px; }
+    .profile-meta { color:#91a3b8; font-size:13px; margin-top:6px; }
+    .profile-number { color:#a984ff; font-size:54px; font-weight:900; float:right; line-height:1; }
+    .profile-grid { display:grid; grid-template-columns:.92fr 1.08fr; gap:15px; margin-top:17px; }
+
+    @media (max-width:900px) {
+        .analytics-grid, .profile-grid { grid-template-columns:1fr; }
+        .profile-head { grid-template-columns:1fr; }
+    }
 
     @media (max-width:900px) {
         .nav-links { display:none; }
@@ -402,41 +462,138 @@ def show_dashboard():
             st.session_state.page = "landing"
             st.rerun()
 
-    st.title("Takım Kontrol Merkezi")
-    st.caption("2 Eylül · Son oyuncu değerlendirmesi bugün 09:30'da tamamlandı.")
+    html('<div style="margin:24px 0 18px"><div class="eyebrow">KULÜP ANALİTİĞİ</div><h1 style="margin:12px 0 5px;font-size:36px">Takım Kontrol Merkezi</h1><p>2 Eylül · Son oyuncu değerlendirmesi bugün 09:30\'da tamamlandı.</p></div>')
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Toplam Oyuncu", "24")
     c2.metric("Takım Motivasyonu", "82", "+4")
     c3.metric("Ortalama Enerji", "76", "-2")
     c4.metric("Takip Edilmeli", "3", "+1", delta_color="inverse")
 
-    chart, status = st.columns([1.65, 1], gap="large")
-    with chart:
-        st.subheader("Son 7 Günlük Takım Trendi")
-        st.line_chart({"Motivasyon": [72,74,73,77,79,80,82], "Enerji": [80,78,79,77,75,74,76], "Hazırlık": [74,75,75,76,77,79,81]}, color=["#39e58c", "#9b6cff", "#f7c65b"], height=320)
-    with status:
-        st.subheader("Kadro Durumu")
-        st.progress(.87, text="21 / 24 oyuncu maça hazır")
-        st.progress(.75, text="18 oyuncu dengeli")
-        st.progress(.12, text="3 oyuncu takip edilmeli")
-        st.warning("3 oyuncunun uyku, enerji veya stres değerlerinde değişim bulunuyor.")
+    html(
+        """
+        <div class="analytics-grid">
+            <div class="glass-card">
+                <div class="glass-title"><b>Son 7 Günlük Takım Trendi</b><span>MOTİVASYON · ENERJİ</span></div>
+                <svg class="trend-svg" viewBox="0 0 600 260" aria-label="Takım trend grafiği">
+                    <defs><linearGradient id="purpleArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9b6cff" stop-opacity=".3"/><stop offset="1" stop-color="#9b6cff" stop-opacity="0"/></linearGradient></defs>
+                    <line class="gridline" x1="45" y1="35" x2="570" y2="35"/><line class="gridline" x1="45" y1="90" x2="570" y2="90"/><line class="gridline" x1="45" y1="145" x2="570" y2="145"/><line class="gridline" x1="45" y1="200" x2="570" y2="200"/>
+                    <path class="area-purple" d="M50 174 L135 160 L220 166 L305 130 L390 105 L475 90 L560 65 L560 215 L50 215 Z"/>
+                    <polyline class="trend-purple" points="50,174 135,160 220,166 305,130 390,105 475,90 560,65"/>
+                    <polyline class="trend-green" points="50,78 135,92 220,86 305,101 390,116 475,124 560,108"/>
+                    <text class="chart-label" x="45" y="238">PZT</text><text class="chart-label" x="130" y="238">SAL</text><text class="chart-label" x="215" y="238">ÇAR</text><text class="chart-label" x="300" y="238">PER</text><text class="chart-label" x="385" y="238">CUM</text><text class="chart-label" x="470" y="238">CTS</text><text class="chart-label" x="550" y="238">PAZ</text>
+                </svg>
+                <div class="chart-legend"><span><i class="legend-dot" style="background:#9b6cff"></i>Motivasyon</span><span><i class="legend-dot" style="background:#39e58c"></i>Enerji</span></div>
+            </div>
+            <div class="glass-card">
+                <div class="glass-title"><b>Takım Wellbeing Profili</b><span>BUGÜN</span></div>
+                <svg class="radar-svg" viewBox="0 0 280 220" aria-label="Takım spider chart">
+                    <polygon class="radar-grid" points="140,25 236,95 199,190 81,190 44,95"/><polygon class="radar-grid" points="140,50 212,102 184,172 96,172 68,102"/><polygon class="radar-grid" points="140,75 188,109 169,154 111,154 92,109"/>
+                    <line class="radar-axis" x1="140" y1="110" x2="140" y2="25"/><line class="radar-axis" x1="140" y1="110" x2="236" y2="95"/><line class="radar-axis" x1="140" y1="110" x2="199" y2="190"/><line class="radar-axis" x1="140" y1="110" x2="81" y2="190"/><line class="radar-axis" x1="140" y1="110" x2="44" y2="95"/>
+                    <polygon class="radar-shape" points="140,40 210,99 181,166 101,165 70,100"/>
+                    <text class="radar-label" x="140" y="15" text-anchor="middle">MOTİVASYON</text><text class="radar-label" x="240" y="95">ENERJİ</text><text class="radar-label" x="201" y="207">UYKU</text><text class="radar-label" x="42" y="207">HAZIRLIK</text><text class="radar-label" x="5" y="95">STRES</text>
+                </svg>
+                <div class="alert"><b>3 oyuncu takip edilmeli.</b><br>Uyku ve enerji sinyallerinde takım ortalamasından sapma var.</div>
+            </div>
+        </div>
+        """
+    )
 
-    st.subheader("Son Oyuncu Değerlendirmeleri")
-    st.dataframe({
-        "No": [10,8,1,9,5],
-        "Oyuncu": ["Emre Demir","Arda Kaya","Kerem Yılmaz","Mert Akın","Can Eren"],
-        "Pozisyon": ["10 Numara","Merkez Orta Saha","Kaleci","Santrafor","Stoper"],
-        "Motivasyon": [86,78,91,64,72],
-        "Enerji": [82,73,88,58,68],
-        "Stres": [25,42,18,72,55],
-        "Durum": ["Dengeli","Dengeli","Dengeli","Takip Edilmeli","Takip Edilmeli"],
-    }, use_container_width=True, hide_index=True)
+    html('<div style="margin:28px 0 12px"><h2 style="font-size:24px;margin:0">Oyuncular</h2><p style="margin:5px 0 0">Detaylı wellbeing profilini açmak için oyuncu adına tıklayın.</p></div>')
+    players = [
+        ("10", "Emre Demir", "10 Numara", "86", "Dengeli"),
+        ("8", "Arda Kaya", "Merkez Orta Saha", "78", "Dengeli"),
+        ("1", "Kerem Yılmaz", "Kaleci", "91", "Dengeli"),
+        ("9", "Mert Akın", "Santrafor", "64", "Takip Edilmeli"),
+        ("5", "Can Eren", "Stoper", "72", "Takip Edilmeli"),
+    ]
+    for number, name, position, motivation, status_text in players:
+        info, score, status, action = st.columns([3.1, 1, 1.25, 1.15], vertical_alignment="center")
+        with info:
+            html(f'<div class="glass-card" style="padding:11px 13px;margin:4px 0"><div class="player-strip"><div class="avatar">{number}</div><div class="player-info"><b>{name}</b><span>{position}</span></div></div></div>')
+        with score:
+            st.metric("Motivasyon", motivation)
+        with status:
+            pill_class = "good" if status_text == "Dengeli" else "watch"
+            html(f'<div style="padding-top:16px"><span class="status-pill {pill_class}">{status_text}</span></div>')
+        with action:
+            if st.button(f"{name} →", key=f"player_{number}", use_container_width=True):
+                st.session_state.selected_player = {
+                    "number": number,
+                    "name": name,
+                    "position": position,
+                    "motivation": motivation,
+                    "status": status_text,
+                }
+                st.session_state.page = "player_profile"
+                st.rerun()
     st.caption("Bu sonuçlar psikolojik veya tıbbi teşhis değildir; uzman karar sürecini destekler.")
+
+
+def show_player_profile():
+    player = st.session_state.get("selected_player", {
+        "number": "10", "name": "Emre Demir", "position": "10 Numara",
+        "motivation": "86", "status": "Dengeli"
+    })
+    logo, title, back = st.columns([1.2, 2.8, 1], vertical_alignment="center")
+    with logo:
+        brand()
+    with title:
+        html('<div style="color:#8fa1b7;font-size:13px">OYUNCU WELLBEING PROFİLİ</div>')
+    with back:
+        if st.button("← Dashboard", use_container_width=True):
+            st.session_state.page = "dashboard"
+            st.rerun()
+
+    html(f"""
+    <div class="profile-head" style="margin-top:26px">
+        <div class="profile-photo"></div>
+        <div>
+            <div class="profile-number">{player['number']}</div>
+            <div class="eyebrow">{player['status']}</div>
+            <div class="profile-name">{player['name']}</div>
+            <div class="profile-meta">{player['position']} · Demo FC · Son değerlendirme bugün 09:30</div>
+        </div>
+    </div>
+    """)
+
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.metric("Motivasyon", player["motivation"], "+4")
+    c2.metric("Enerji", "76", "-2")
+    c3.metric("Uyku", "71", "-5")
+    c4.metric("Hazırlık", "80", "+1")
+    c5.metric("Stres", "32", "-3")
+
+    html("""
+    <div class="profile-grid">
+        <div class="glass-card">
+            <div class="glass-title"><b>Bireysel Spider Chart</b><span>SON 7 GÜN</span></div>
+            <svg class="radar-svg" viewBox="0 0 280 220">
+                <polygon class="radar-grid" points="140,25 236,95 199,190 81,190 44,95"/><polygon class="radar-grid" points="140,50 212,102 184,172 96,172 68,102"/><polygon class="radar-grid" points="140,75 188,109 169,154 111,154 92,109"/>
+                <line class="radar-axis" x1="140" y1="110" x2="140" y2="25"/><line class="radar-axis" x1="140" y1="110" x2="236" y2="95"/><line class="radar-axis" x1="140" y1="110" x2="199" y2="190"/><line class="radar-axis" x1="140" y1="110" x2="81" y2="190"/><line class="radar-axis" x1="140" y1="110" x2="44" y2="95"/>
+                <polygon class="radar-shape" points="140,34 205,100 177,160 92,174 72,100"/>
+                <text class="radar-label" x="140" y="15" text-anchor="middle">MOTİVASYON</text><text class="radar-label" x="240" y="95">ENERJİ</text><text class="radar-label" x="201" y="207">UYKU</text><text class="radar-label" x="42" y="207">HAZIRLIK</text><text class="radar-label" x="5" y="95">STRES</text>
+            </svg>
+        </div>
+        <div class="glass-card">
+            <div class="glass-title"><b>Antrenman Görseli · Isı Haritası</b><span>BUGÜN</span></div>
+            <div class="heatmap-photo" style="min-height:360px;border-radius:12px">
+                <div class="signal-badge">Gözlem sinyali<br><b>Orta</b></div>
+                <div class="heat-legend"><span>Düşük</span><span class="legend-bar"></span><span>Yüksek</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="glass-card" style="margin-top:15px">
+        <div class="glass-title"><b>AI Destekli Değerlendirme Özeti</b><span>UZMAN KONTROLÜ GEREKİR</span></div>
+        <p style="line-height:1.7;margin:0">Oyuncunun motivasyonu dengeli seyrediyor. Son üç değerlendirmede uyku değerinde sınırlı düşüş gözlendi. Bu çıktı teşhis değildir; oyuncuyla kısa bir görüşme yapılması önerilir.</p>
+    </div>
+    """)
 
 
 if st.session_state.page == "landing":
     show_landing_page()
 elif st.session_state.page == "demo_login":
     show_demo_login()
+elif st.session_state.page == "player_profile":
+    show_player_profile()
 else:
     show_dashboard()
