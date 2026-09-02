@@ -1,4 +1,6 @@
+import base64
 import textwrap
+from pathlib import Path
 
 import streamlit as st
 
@@ -10,8 +12,11 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-if "page" not in st.session_state:
-    st.session_state.page = "landing"
+VALID_PAGES = {"landing", "demo_login", "dashboard", "player_profile"}
+route = st.query_params.get("page", "landing")
+if route not in VALID_PAGES:
+    route = "landing"
+st.session_state.page = route
 
 if "language" not in st.session_state:
     st.session_state.language = "TR — Türkçe"
@@ -20,6 +25,26 @@ if "language" not in st.session_state:
 def html(content):
     """Render HTML directly, without Markdown interpreting nested blocks as code."""
     st.html(textwrap.dedent(content))
+
+
+def navigate(page):
+    st.session_state.page = page
+    st.query_params["page"] = page
+    st.rerun()
+
+
+def asset_data_uri(filename):
+    path = Path(__file__).parent / "assets" / filename
+    if not path.exists():
+        return ""
+    mime = "image/png" if path.suffix.lower() == ".png" else "image/jpeg"
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:{mime};base64,{encoded}"
+
+
+HERO_IMAGE = asset_data_uri("hero-footballer.png")
+PORTRAIT_SHEET = asset_data_uri("player-portraits.png")
+HEATMAP_IMAGE = asset_data_uri("emotional-heatmap-base.png")
 
 
 html(
@@ -134,11 +159,23 @@ html(
     .card-head { display:flex; justify-content:space-between; align-items:center; padding:13px 15px; color:#e7edf5; font-size:12px; font-weight:700; }
     .card-head small { color:#8396ac; font-weight:500; }
 
+    .hero-footballer {
+        position:relative; min-height:390px;
+        background:
+            linear-gradient(90deg, rgba(5,14,25,.05), rgba(5,14,25,.08) 55%, rgba(5,14,25,.72)),
+            url('__HERO_IMAGE__') center/cover;
+        overflow:hidden;
+    }
+    .hero-caption {
+        position:absolute; left:15px; bottom:15px; z-index:3; color:#fff; font-size:11px;
+        padding:9px 11px; border-radius:10px; border:1px solid rgba(255,255,255,.13);
+        background:rgba(6,15,26,.67); backdrop-filter:blur(10px);
+    }
     .heatmap-photo {
         position:relative; min-height:390px;
         background:
-            linear-gradient(0deg, rgba(5,14,25,.64), rgba(5,14,25,.1)),
-            url('https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=1200&q=82') center/cover;
+            linear-gradient(0deg, rgba(5,14,25,.48), rgba(5,14,25,.04)),
+            url('__HEATMAP_IMAGE__') center/cover;
         overflow:hidden;
     }
     .heatmap-photo:after {
@@ -246,9 +283,13 @@ html(
     }
     .profile-photo {
         width:150px; height:170px; border-radius:15px; background:
-        linear-gradient(0deg, rgba(7,17,31,.45), rgba(7,17,31,.05)),
-        url('https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=500&q=82') center/cover;
+        url('__PORTRAIT_SHEET__') left center/500% 100% no-repeat;
     }
+    .portrait-0 { background-position:0% center; }
+    .portrait-1 { background-position:25% center; }
+    .portrait-2 { background-position:50% center; }
+    .portrait-3 { background-position:75% center; }
+    .portrait-4 { background-position:100% center; }
     .profile-name { color:#fff; font-size:32px; font-weight:830; letter-spacing:-1px; }
     .profile-meta { color:#91a3b8; font-size:13px; margin-top:6px; }
     .profile-number { color:#a984ff; font-size:54px; font-weight:900; float:right; line-height:1; }
@@ -267,7 +308,9 @@ html(
         .hero h1 { letter-spacing:-2px; }
     }
     </style>
-    """
+    """.replace("__HERO_IMAGE__", HERO_IMAGE)
+       .replace("__HEATMAP_IMAGE__", HEATMAP_IMAGE)
+       .replace("__PORTRAIT_SHEET__", PORTRAIT_SHEET)
 )
 
 
@@ -307,8 +350,7 @@ def show_landing_page():
         st.session_state.language = selected
     with button_col:
         if st.button("Canlı Demo", key="header_demo", use_container_width=True):
-            st.session_state.page = "demo_login"
-            st.rerun()
+            navigate("demo_login")
 
     if st.session_state.language != "TR — Türkçe":
         st.info("Seçtiğiniz dil demo sürümünde yakında aktif olacaktır. İçerik şimdilik Türkçedir.")
@@ -329,8 +371,7 @@ def show_landing_page():
     left, cta, secondary, right = st.columns([1.5, 1.15, 1.25, 1.5])
     with cta:
         if st.button("Canlı Demoyu İncele →", key="hero_demo", use_container_width=True):
-            st.session_state.page = "demo_login"
-            st.rerun()
+            navigate("demo_login")
     with secondary:
         html('<div style="color:#9aacbf;font-size:12px;text-align:left;padding:14px 0 0 5px;">Kurgusal verilerle çalışan demo</div>')
 
@@ -351,12 +392,11 @@ def show_landing_page():
             <div class="stage-grid">
                 <div class="visual-card">
                     <div class="card-head">
-                        <span>Antrenman Görseli · Dikkat Haritası</span>
-                        <small>AI destekli görsel bağlam</small>
+                        <span>Maç İçi Mücadele · Oyuncu Bağlamı</span>
+                        <small>Kırmızı-Beyaz Takım</small>
                     </div>
-                    <div class="heatmap-photo">
-                        <div class="signal-badge">Gözlem sinyali<br><b>Orta</b></div>
-                        <div class="heat-legend"><span>Düşük</span><span class="legend-bar"></span><span>Yüksek</span></div>
+                    <div class="hero-footballer">
+                        <div class="hero-caption">Maç içi mücadele · 78. dakika</div>
                     </div>
                 </div>
 
@@ -367,26 +407,24 @@ def show_landing_page():
                             <small>Son 7 gün</small>
                         </div>
                         <div class="radar-wrap">
-                            <svg class="radar-svg" viewBox="0 0 280 220" aria-label="Oyuncu spider chart">
-                                <polygon class="radar-grid" points="140,25 236,95 199,190 81,190 44,95"/>
-                                <polygon class="radar-grid" points="140,50 212,102 184,172 96,172 68,102"/>
-                                <polygon class="radar-grid" points="140,75 188,109 169,154 111,154 92,109"/>
+                            <svg class="radar-svg" viewBox="0 0 280 220" aria-label="Altı metrikli oyuncu spider chart">
+                                <polygon class="radar-grid" points="140,25 214,67 214,153 140,195 66,153 66,67"/>
+                                <polygon class="radar-grid" points="140,48 194,79 194,141 140,172 86,141 86,79"/>
+                                <polygon class="radar-grid" points="140,72 174,91 174,129 140,148 106,129 106,91"/>
                                 <line class="radar-axis" x1="140" y1="110" x2="140" y2="25"/>
-                                <line class="radar-axis" x1="140" y1="110" x2="236" y2="95"/>
-                                <line class="radar-axis" x1="140" y1="110" x2="199" y2="190"/>
-                                <line class="radar-axis" x1="140" y1="110" x2="81" y2="190"/>
-                                <line class="radar-axis" x1="140" y1="110" x2="44" y2="95"/>
-                                <polygon class="radar-shape" points="140,40 214,99 178,162 96,169 67,99"/>
-                                <circle class="radar-dot" cx="140" cy="40" r="4"/>
-                                <circle class="radar-dot" cx="214" cy="99" r="4"/>
-                                <circle class="radar-dot" cx="178" cy="162" r="4"/>
-                                <circle class="radar-dot" cx="96" cy="169" r="4"/>
-                                <circle class="radar-dot" cx="67" cy="99" r="4"/>
-                                <text class="radar-label" x="140" y="15" text-anchor="middle">MOTİVASYON</text>
-                                <text class="radar-label" x="246" y="96">ENERJİ</text>
-                                <text class="radar-label" x="204" y="207">UYKU</text>
-                                <text class="radar-label" x="43" y="207">HAZIRLIK</text>
-                                <text class="radar-label" x="5" y="96">STRES</text>
+                                <line class="radar-axis" x1="140" y1="110" x2="214" y2="67"/>
+                                <line class="radar-axis" x1="140" y1="110" x2="214" y2="153"/>
+                                <line class="radar-axis" x1="140" y1="110" x2="140" y2="195"/>
+                                <line class="radar-axis" x1="140" y1="110" x2="66" y2="153"/>
+                                <line class="radar-axis" x1="140" y1="110" x2="66" y2="67"/>
+                                <polygon class="radar-shape" points="140,37 204,73 195,142 140,178 82,144 91,82"/>
+                                <circle class="radar-dot" cx="140" cy="37" r="4"/><circle class="radar-dot" cx="204" cy="73" r="4"/><circle class="radar-dot" cx="195" cy="142" r="4"/><circle class="radar-dot" cx="140" cy="178" r="4"/><circle class="radar-dot" cx="82" cy="144" r="4"/><circle class="radar-dot" cx="91" cy="82" r="4"/>
+                                <text class="radar-label" x="140" y="14" text-anchor="middle">MOTİVASYON</text>
+                                <text class="radar-label" x="218" y="62">ENERJİ</text>
+                                <text class="radar-label" x="218" y="160">UYKU</text>
+                                <text class="radar-label" x="140" y="211" text-anchor="middle">HAZIRLIK</text>
+                                <text class="radar-label" x="18" y="160">YORGUNLUK</text>
+                                <text class="radar-label" x="34" y="62">STRES</text>
                             </svg>
                         </div>
                         <div class="score-grid">
@@ -438,8 +476,7 @@ def show_demo_login():
         brand()
     with top_right:
         if st.button("← Siteye Dön", use_container_width=True):
-            st.session_state.page = "landing"
-            st.rerun()
+            navigate("landing")
 
     html('<div style="height:60px"></div><div style="text-align:center"><div class="eyebrow">CANLI ÜRÜN DEMOSU</div><h1>Demo Kulübüne Giriş</h1><p>Platformu farklı ekip rollerinden biriyle inceleyin.</p></div>')
     left, center, right = st.columns([1, 1.35, 1])
@@ -447,8 +484,7 @@ def show_demo_login():
         role = st.selectbox("Rolünüz", ["Teknik Direktör", "Spor Psikoloğu", "Performans Ekibi"])
         st.caption(f"{role} görünümüyle devam edeceksiniz. Tüm demo verileri kurgusaldır.")
         if st.button("Demo Hesabıyla Devam Et →", use_container_width=True):
-            st.session_state.page = "dashboard"
-            st.rerun()
+            navigate("dashboard")
 
 
 def show_dashboard():
@@ -459,8 +495,7 @@ def show_dashboard():
         html('<div style="color:#8fa1b7;font-size:13px">DEMO FC · A TAKIM · ANTRENMAN GÜNÜ</div>')
     with back:
         if st.button("← Siteye Dön", use_container_width=True):
-            st.session_state.page = "landing"
-            st.rerun()
+            navigate("landing")
 
     html('<div style="margin:24px 0 18px"><div class="eyebrow">KULÜP ANALİTİĞİ</div><h1 style="margin:12px 0 5px;font-size:36px">Takım Kontrol Merkezi</h1><p>2 Eylül · Son oyuncu değerlendirmesi bugün 09:30\'da tamamlandı.</p></div>')
     c1, c2, c3, c4 = st.columns(4)
@@ -500,13 +535,13 @@ def show_dashboard():
 
     html('<div style="margin:28px 0 12px"><h2 style="font-size:24px;margin:0">Oyuncular</h2><p style="margin:5px 0 0">Detaylı wellbeing profilini açmak için oyuncu adına tıklayın.</p></div>')
     players = [
-        ("10", "Emre Demir", "10 Numara", "86", "Dengeli"),
-        ("8", "Arda Kaya", "Merkez Orta Saha", "78", "Dengeli"),
-        ("1", "Kerem Yılmaz", "Kaleci", "91", "Dengeli"),
-        ("9", "Mert Akın", "Santrafor", "64", "Takip Edilmeli"),
-        ("5", "Can Eren", "Stoper", "72", "Takip Edilmeli"),
+        (0, "10", "Emre Demir", "10 Numara", 86, 76, 71, 80, 32, 44, "Dengeli"),
+        (1, "8", "Arda Kaya", "Merkez Orta Saha", 78, 73, 75, 77, 42, 51, "Dengeli"),
+        (2, "1", "Kerem Yılmaz", "Kaleci", 91, 88, 84, 89, 18, 29, "Dengeli"),
+        (3, "9", "Mert Akın", "Santrafor", 64, 58, 55, 61, 72, 76, "Takip Edilmeli"),
+        (4, "5", "Can Eren", "Stoper", 72, 68, 63, 69, 55, 66, "Takip Edilmeli"),
     ]
-    for number, name, position, motivation, status_text in players:
+    for portrait_index, number, name, position, motivation, energy, sleep, readiness, stress, fatigue, status_text in players:
         info, score, status, action = st.columns([3.1, 1, 1.25, 1.15], vertical_alignment="center")
         with info:
             html(f'<div class="glass-card" style="padding:11px 13px;margin:4px 0"><div class="player-strip"><div class="avatar">{number}</div><div class="player-info"><b>{name}</b><span>{position}</span></div></div></div>')
@@ -522,17 +557,24 @@ def show_dashboard():
                     "name": name,
                     "position": position,
                     "motivation": motivation,
+                    "energy": energy,
+                    "sleep": sleep,
+                    "readiness": readiness,
+                    "stress": stress,
+                    "fatigue": fatigue,
                     "status": status_text,
+                    "portrait_index": portrait_index,
                 }
-                st.session_state.page = "player_profile"
-                st.rerun()
+                st.query_params["player"] = str(portrait_index)
+                navigate("player_profile")
     st.caption("Bu sonuçlar psikolojik veya tıbbi teşhis değildir; uzman karar sürecini destekler.")
 
 
 def show_player_profile():
     player = st.session_state.get("selected_player", {
         "number": "10", "name": "Emre Demir", "position": "10 Numara",
-        "motivation": "86", "status": "Dengeli"
+        "motivation": 86, "energy": 76, "sleep": 71, "readiness": 80,
+        "stress": 32, "fatigue": 44, "status": "Dengeli", "portrait_index": 0
     })
     logo, title, back = st.columns([1.2, 2.8, 1], vertical_alignment="center")
     with logo:
@@ -541,12 +583,11 @@ def show_player_profile():
         html('<div style="color:#8fa1b7;font-size:13px">OYUNCU WELLBEING PROFİLİ</div>')
     with back:
         if st.button("← Dashboard", use_container_width=True):
-            st.session_state.page = "dashboard"
-            st.rerun()
+            navigate("dashboard")
 
     html(f"""
     <div class="profile-head" style="margin-top:26px">
-        <div class="profile-photo"></div>
+        <div class="profile-photo portrait-{player['portrait_index']}"></div>
         <div>
             <div class="profile-number">{player['number']}</div>
             <div class="eyebrow">{player['status']}</div>
@@ -556,28 +597,29 @@ def show_player_profile():
     </div>
     """)
 
-    c1, c2, c3, c4, c5 = st.columns(5)
+    c1, c2, c3, c4, c5, c6 = st.columns(6)
     c1.metric("Motivasyon", player["motivation"], "+4")
-    c2.metric("Enerji", "76", "-2")
-    c3.metric("Uyku", "71", "-5")
-    c4.metric("Hazırlık", "80", "+1")
-    c5.metric("Stres", "32", "-3")
+    c2.metric("Enerji", player["energy"], "-2")
+    c3.metric("Uyku", player["sleep"], "-5")
+    c4.metric("Hazırlık", player["readiness"], "+1")
+    c5.metric("Stres", player["stress"], "-3")
+    c6.metric("Yorgunluk", player["fatigue"], "+2", delta_color="inverse")
 
     html("""
     <div class="profile-grid">
         <div class="glass-card">
             <div class="glass-title"><b>Bireysel Spider Chart</b><span>SON 7 GÜN</span></div>
             <svg class="radar-svg" viewBox="0 0 280 220">
-                <polygon class="radar-grid" points="140,25 236,95 199,190 81,190 44,95"/><polygon class="radar-grid" points="140,50 212,102 184,172 96,172 68,102"/><polygon class="radar-grid" points="140,75 188,109 169,154 111,154 92,109"/>
-                <line class="radar-axis" x1="140" y1="110" x2="140" y2="25"/><line class="radar-axis" x1="140" y1="110" x2="236" y2="95"/><line class="radar-axis" x1="140" y1="110" x2="199" y2="190"/><line class="radar-axis" x1="140" y1="110" x2="81" y2="190"/><line class="radar-axis" x1="140" y1="110" x2="44" y2="95"/>
-                <polygon class="radar-shape" points="140,34 205,100 177,160 92,174 72,100"/>
-                <text class="radar-label" x="140" y="15" text-anchor="middle">MOTİVASYON</text><text class="radar-label" x="240" y="95">ENERJİ</text><text class="radar-label" x="201" y="207">UYKU</text><text class="radar-label" x="42" y="207">HAZIRLIK</text><text class="radar-label" x="5" y="95">STRES</text>
+                <polygon class="radar-grid" points="140,25 214,67 214,153 140,195 66,153 66,67"/><polygon class="radar-grid" points="140,48 194,79 194,141 140,172 86,141 86,79"/><polygon class="radar-grid" points="140,72 174,91 174,129 140,148 106,129 106,91"/>
+                <line class="radar-axis" x1="140" y1="110" x2="140" y2="25"/><line class="radar-axis" x1="140" y1="110" x2="214" y2="67"/><line class="radar-axis" x1="140" y1="110" x2="214" y2="153"/><line class="radar-axis" x1="140" y1="110" x2="140" y2="195"/><line class="radar-axis" x1="140" y1="110" x2="66" y2="153"/><line class="radar-axis" x1="140" y1="110" x2="66" y2="67"/>
+                <polygon class="radar-shape" points="140,34 202,74 194,141 140,176 84,142 92,82"/>
+                <text class="radar-label" x="140" y="14" text-anchor="middle">MOTİVASYON</text><text class="radar-label" x="218" y="62">ENERJİ</text><text class="radar-label" x="218" y="160">UYKU</text><text class="radar-label" x="140" y="211" text-anchor="middle">HAZIRLIK</text><text class="radar-label" x="18" y="160">YORGUNLUK</text><text class="radar-label" x="34" y="62">STRES</text>
             </svg>
         </div>
         <div class="glass-card">
-            <div class="glass-title"><b>Antrenman Görseli · Isı Haritası</b><span>BUGÜN</span></div>
+            <div class="glass-title"><b>Öz-Bildirim İlişkili Duygusal Yük Haritası</b><span>BUGÜN</span></div>
             <div class="heatmap-photo" style="min-height:360px;border-radius:12px">
-                <div class="signal-badge">Gözlem sinyali<br><b>Orta</b></div>
+                <div class="signal-badge">Duygusal yük sinyali<br><b>Orta</b></div>
                 <div class="heat-legend"><span>Düşük</span><span class="legend-bar"></span><span>Yüksek</span></div>
             </div>
         </div>
