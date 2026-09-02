@@ -104,6 +104,17 @@ html(
     }
 
     div[data-testid="stSelectbox"] > div { border-radius: 10px; }
+    .route-button {
+        min-height:46px; display:flex; align-items:center; justify-content:center;
+        border-radius:10px; padding:0 18px; text-decoration:none !important;
+        color:#fff !important; font-size:13px; font-weight:780;
+        border:1px solid #9b6cff;
+        background:linear-gradient(135deg,#9b6cff,#6f4be8);
+        box-shadow:0 10px 28px rgba(111,75,232,.22);
+        transition:all .2s ease;
+    }
+    .route-button:hover { color:#fff !important; border-color:#b697ff; transform:translateY(-1px); }
+    .route-button.secondary { background:rgba(155,108,255,.09); border-color:rgba(155,108,255,.35); box-shadow:none; }
 
     .brand { display:flex; align-items:center; gap:11px; height:46px; }
     .brand-mark {
@@ -413,8 +424,7 @@ def show_landing_page():
         )
         st.session_state.language = selected
     with button_col:
-        if st.button("Canlı Demo", key="header_demo", use_container_width=True):
-            navigate("demo_login")
+        html('<a class="route-button" href="?page=demo_login" target="_self">Canlı Demo</a>')
 
     if st.session_state.language != "TR — Türkçe":
         st.info("Seçtiğiniz dil demo sürümünde yakında aktif olacaktır. İçerik şimdilik Türkçedir.")
@@ -442,7 +452,7 @@ def show_landing_page():
     html(
         """
         <div class="trust-row">
-            <div class="trust-chip">Yüz tanıma kullanılmaz</div>
+            <div class="trust-chip">Duygusal analiz</div>
             <div class="trust-chip">Psikolojik teşhis değildir</div>
             <div class="trust-chip">Uzman denetimli</div>
         </div>
@@ -583,7 +593,7 @@ def show_landing_page():
         <div class="security-panel">
             <div class="eyebrow">GÜVENLİ VE İNSAN ODAKLI</div>
             <h2>Oyuncuyu etiketlemez, uzman ekibi destekler.</h2>
-            <p>Menteleven yüz tanıma kullanmaz, fotoğraflardan psikolojik teşhis üretmez. Platform, oyuncunun kendi bildirimleri ile uzman gözlemlerini anlamlı bir zaman çizelgesinde birleştirir.</p>
+            <p>Menteleven duygusal analiz verilerini oyuncunun kendi bildirimleri ve uzman gözlemleriyle birlikte değerlendirir; psikolojik veya tıbbi teşhis üretmez. Platform, bütün sinyalleri anlamlı bir zaman çizelgesinde birleştirir.</p>
         </div>
         <div class="footer-note">Menteleven · Futbol kulüpleri için oyuncu wellbeing platformu · Demo sürümü</div>
         """
@@ -595,8 +605,7 @@ def show_demo_login():
     with top_left:
         brand()
     with top_right:
-        if st.button("← Siteye Dön", use_container_width=True):
-            navigate("landing")
+        html('<a class="route-button secondary" href="?page=landing" target="_self">← Siteye Dön</a>')
 
     html('<div style="height:60px"></div><div style="text-align:center"><div class="eyebrow">CANLI ÜRÜN DEMOSU</div><h1>Demo Kulübüne Giriş</h1><p>Platformu farklı ekip rollerinden biriyle inceleyin.</p></div>')
     left, center, right = st.columns([1, 1.35, 1])
@@ -614,8 +623,7 @@ def show_dashboard():
     with title:
         html('<div style="color:#8fa1b7;font-size:13px">DEMO FC · A TAKIM · ANTRENMAN GÜNÜ</div>')
     with back:
-        if st.button("← Siteye Dön", use_container_width=True):
-            navigate("landing")
+        html('<a class="route-button secondary" href="?page=landing" target="_self">← Landing Page</a>')
 
     html('<div style="margin:24px 0 18px"><div class="eyebrow">KULÜP ANALİTİĞİ</div><h1 style="margin:12px 0 5px;font-size:36px">Takım Kontrol Merkezi</h1><p>2 Eylül · Son oyuncu değerlendirmesi bugün 09:30\'da tamamlandı.</p></div>')
     c1, c2, c3, c4 = st.columns(4)
@@ -702,8 +710,7 @@ def show_player_profile():
     with title:
         html('<div style="color:#8fa1b7;font-size:13px">OYUNCU WELLBEING PROFİLİ</div>')
     with back:
-        if st.button("← Dashboard", use_container_width=True):
-            navigate("dashboard")
+        html('<a class="route-button secondary" href="?page=dashboard" target="_self">← Dashboard</a>')
 
     html(f"""
     <div class="profile-head" style="margin-top:26px">
