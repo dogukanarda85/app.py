@@ -200,7 +200,7 @@ html(
     .signal-badge b { color:var(--red); font-size:17px; }
 
     .analysis-column { display:grid; gap:14px; }
-    .radar-wrap { min-height:242px; padding:0 12px 12px; }
+    .radar-wrap { min-height:236px; padding:0 8px 6px; }
     .radar-svg { width:100%; height:210px; display:block; }
     .radar-grid { fill:none; stroke:rgba(255,255,255,.13); stroke-width:1; }
     .radar-axis { stroke:rgba(255,255,255,.1); stroke-width:1; }
@@ -208,12 +208,43 @@ html(
     .radar-dot { fill:var(--green); stroke:#07111f; stroke-width:2; }
     .radar-label { fill:#91a3b8; font-size:9px; font-family:Arial,sans-serif; }
 
-    .score-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 12px 12px; }
-    .score { background:#102036; border:1px solid var(--border); border-radius:12px; padding:12px; }
-    .score span { display:block; color:#8194aa; font-size:9px; text-transform:uppercase; letter-spacing:.6px; }
-    .score b { display:block; color:#fff; font-size:22px; margin-top:4px; }
+    .score-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; padding:0 10px 10px; }
+    .score { background:#102036; border:1px solid var(--border); border-radius:10px; padding:8px 9px; }
+    .score span { display:block; color:#8194aa; font-size:7px; text-transform:uppercase; letter-spacing:.45px; white-space:nowrap; }
+    .score b { display:block; color:#fff; font-size:17px; line-height:1.1; margin-top:4px; }
     .score.green b { color:var(--green); }
     .score.purple b { color:#b99cff; }
+    .score.yellow b { color:#f7c65b; }
+    .score.red b { color:#ff7b8a; }
+    .score.cyan b { color:#4cc9f0; }
+
+    .css-radar { position:relative; width:270px; height:222px; margin:0 auto; }
+    .radar-hex {
+        position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+        width:174px; height:164px; clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);
+        background:rgba(255,255,255,.14);
+    }
+    .radar-hex:after {
+        content:""; position:absolute; inset:1.5px;
+        clip-path:inherit; background:#0a1727;
+    }
+    .radar-hex.mid { transform:translate(-50%,-50%) scale(.69); }
+    .radar-hex.inner { transform:translate(-50%,-50%) scale(.38); }
+    .radar-fill {
+        position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+        width:174px; height:164px;
+        clip-path:polygon(50% 8%,86% 28%,80% 68%,50% 89%,17% 70%,25% 31%);
+        background:linear-gradient(145deg,rgba(57,229,140,.5),rgba(155,108,255,.58));
+        border:none; filter:drop-shadow(0 0 8px rgba(155,108,255,.28));
+    }
+    .radar-center { position:absolute; left:50%; top:50%; width:5px; height:5px; border-radius:50%; background:#fff; transform:translate(-50%,-50%); }
+    .radar-label-css { position:absolute; color:#95a7bb; font-size:8px; font-weight:750; letter-spacing:.3px; }
+    .rl-top { top:5px; left:50%; transform:translateX(-50%); }
+    .rl-ur { top:52px; right:0; }
+    .rl-lr { bottom:43px; right:5px; }
+    .rl-bottom { bottom:1px; left:50%; transform:translateX(-50%); }
+    .rl-ll { bottom:43px; left:0; }
+    .rl-ul { top:52px; left:7px; }
     .alert {
         margin:0 12px 12px; border-left:3px solid var(--yellow); border-radius:9px;
         background:rgba(247,198,91,.07); color:#dbe4ee; padding:11px; font-size:11px; line-height:1.5;
@@ -407,29 +438,27 @@ def show_landing_page():
                             <small>Son 7 gün</small>
                         </div>
                         <div class="radar-wrap">
-                            <svg class="radar-svg" viewBox="0 0 280 220" aria-label="Altı metrikli oyuncu spider chart">
-                                <polygon class="radar-grid" points="140,25 214,67 214,153 140,195 66,153 66,67"/>
-                                <polygon class="radar-grid" points="140,48 194,79 194,141 140,172 86,141 86,79"/>
-                                <polygon class="radar-grid" points="140,72 174,91 174,129 140,148 106,129 106,91"/>
-                                <line class="radar-axis" x1="140" y1="110" x2="140" y2="25"/>
-                                <line class="radar-axis" x1="140" y1="110" x2="214" y2="67"/>
-                                <line class="radar-axis" x1="140" y1="110" x2="214" y2="153"/>
-                                <line class="radar-axis" x1="140" y1="110" x2="140" y2="195"/>
-                                <line class="radar-axis" x1="140" y1="110" x2="66" y2="153"/>
-                                <line class="radar-axis" x1="140" y1="110" x2="66" y2="67"/>
-                                <polygon class="radar-shape" points="140,37 204,73 195,142 140,178 82,144 91,82"/>
-                                <circle class="radar-dot" cx="140" cy="37" r="4"/><circle class="radar-dot" cx="204" cy="73" r="4"/><circle class="radar-dot" cx="195" cy="142" r="4"/><circle class="radar-dot" cx="140" cy="178" r="4"/><circle class="radar-dot" cx="82" cy="144" r="4"/><circle class="radar-dot" cx="91" cy="82" r="4"/>
-                                <text class="radar-label" x="140" y="14" text-anchor="middle">MOTİVASYON</text>
-                                <text class="radar-label" x="218" y="62">ENERJİ</text>
-                                <text class="radar-label" x="218" y="160">UYKU</text>
-                                <text class="radar-label" x="140" y="211" text-anchor="middle">HAZIRLIK</text>
-                                <text class="radar-label" x="18" y="160">YORGUNLUK</text>
-                                <text class="radar-label" x="34" y="62">STRES</text>
-                            </svg>
+                            <div class="css-radar" role="img" aria-label="Yorgunluk, stres, motivasyon, hazırlık, uyku ve enerji spider chart">
+                                <div class="radar-hex"></div>
+                                <div class="radar-hex mid"></div>
+                                <div class="radar-hex inner"></div>
+                                <div class="radar-fill"></div>
+                                <div class="radar-center"></div>
+                                <span class="radar-label-css rl-top">MOTİVASYON</span>
+                                <span class="radar-label-css rl-ur">ENERJİ</span>
+                                <span class="radar-label-css rl-lr">UYKU</span>
+                                <span class="radar-label-css rl-bottom">HAZIRLIK</span>
+                                <span class="radar-label-css rl-ll">YORGUNLUK</span>
+                                <span class="radar-label-css rl-ul">STRES</span>
+                            </div>
                         </div>
                         <div class="score-grid">
                             <div class="score green"><span>Motivasyon</span><b>82</b></div>
-                            <div class="score purple"><span>Hazırlık</span><b>76</b></div>
+                            <div class="score cyan"><span>Enerji</span><b>76</b></div>
+                            <div class="score purple"><span>Uyku</span><b>71</b></div>
+                            <div class="score green"><span>Hazırlık</span><b>80</b></div>
+                            <div class="score red"><span>Yorgunluk</span><b>44</b></div>
+                            <div class="score yellow"><span>Stres</span><b>32</b></div>
                         </div>
                         <div class="alert"><b>Takip sinyali:</b> Son üç günde uyku ve enerji değerlerinde düşüş görüldü.</div>
                     </div>
