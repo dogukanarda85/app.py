@@ -424,7 +424,7 @@ def show_landing_page():
         )
         st.session_state.language = selected
     with button_col:
-        html('<a class="route-button" href="?page=demo_login" target="_self">Canlı Demo</a>')
+        html('<a class="route-button" href="https://player-wellbeing-demo.streamlit.app/?page=demo_login" target="_top">Canlı Demo</a>')
 
     if st.session_state.language != "TR — Türkçe":
         st.info("Seçtiğiniz dil demo sürümünde yakında aktif olacaktır. İçerik şimdilik Türkçedir.")
@@ -605,7 +605,7 @@ def show_demo_login():
     with top_left:
         brand()
     with top_right:
-        html('<a class="route-button secondary" href="?page=landing" target="_self">← Siteye Dön</a>')
+        html('<a class="route-button secondary" href="https://player-wellbeing-demo.streamlit.app/?page=landing" target="_top">← Siteye Dön</a>')
 
     html('<div style="height:60px"></div><div style="text-align:center"><div class="eyebrow">CANLI ÜRÜN DEMOSU</div><h1>Demo Kulübüne Giriş</h1><p>Platformu farklı ekip rollerinden biriyle inceleyin.</p></div>')
     left, center, right = st.columns([1, 1.35, 1])
@@ -623,7 +623,7 @@ def show_dashboard():
     with title:
         html('<div style="color:#8fa1b7;font-size:13px">DEMO FC · A TAKIM · ANTRENMAN GÜNÜ</div>')
     with back:
-        html('<a class="route-button secondary" href="?page=landing" target="_self">← Landing Page</a>')
+        html('<a class="route-button secondary" href="https://player-wellbeing-demo.streamlit.app/?page=landing" target="_top">← Landing Page</a>')
 
     html('<div style="margin:24px 0 18px"><div class="eyebrow">KULÜP ANALİTİĞİ</div><h1 style="margin:12px 0 5px;font-size:36px">Takım Kontrol Merkezi</h1><p>2 Eylül · Son oyuncu değerlendirmesi bugün 09:30\'da tamamlandı.</p></div>')
     c1, c2, c3, c4 = st.columns(4)
@@ -710,7 +710,7 @@ def show_player_profile():
     with title:
         html('<div style="color:#8fa1b7;font-size:13px">OYUNCU WELLBEING PROFİLİ</div>')
     with back:
-        html('<a class="route-button secondary" href="?page=dashboard" target="_self">← Dashboard</a>')
+        html('<a class="route-button secondary" href="https://player-wellbeing-demo.streamlit.app/?page=dashboard" target="_top">← Dashboard</a>')
 
     html(f"""
     <div class="profile-head" style="margin-top:26px">
