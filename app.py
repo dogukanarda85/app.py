@@ -4,6 +4,8 @@ from datetime import date, timedelta
 from pathlib import Path
 
 import streamlit as st
+import numpy as np
+import plotly.graph_objects as go
 
 
 st.set_page_config(
@@ -419,6 +421,12 @@ html(
     .auth-title p { margin:0 0 20px; font-size:13px; }
     .auth-divider { display:flex; align-items:center; gap:12px; color:#71849a; font-size:10px; margin:17px 0; }
     .auth-divider:before,.auth-divider:after { content:""; height:1px; background:rgba(255,255,255,.09); flex:1; }
+    .st-key-forgot_password button { background:transparent!important; border:0!important; box-shadow:none!important; color:#e6eaf0!important; padding:4px 0!important; justify-content:flex-start!important; }
+    .st-key-forgot_password button:hover { color:#fff!important; text-decoration:underline!important; }
+    .st-key-google_login button,.st-key-apple_login button { background:#f7f8fa!important; border:1px solid #d9dee7!important; color:#151922!important; box-shadow:none!important; }
+    .st-key-google_login button:hover,.st-key-apple_login button:hover { background:#fff!important; border-color:#fff!important; }
+    .st-key-google_login button p:before { content:""; display:inline-block; width:18px; height:18px; margin-right:8px; vertical-align:-4px; background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath fill='%234285F4' d='M17.64 9.205c0-.638-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 01-1.797 2.715v2.258h2.909c1.702-1.567 2.684-3.875 2.684-6.613z'/%3E%3Cpath fill='%2334A853' d='M9 18c2.43 0 4.468-.806 5.956-2.182l-2.91-2.258c-.805.54-1.835.86-3.046.86-2.344 0-4.328-1.585-5.037-3.715H.956v2.333A9 9 0 009 18z'/%3E%3Cpath fill='%23FBBC05' d='M3.963 10.705A5.41 5.41 0 013.682 9c0-.592.102-1.168.281-1.705V4.962H.956A9 9 0 000 9c0 1.45.347 2.824.956 4.038l3.007-2.333z'/%3E%3Cpath fill='%23EA4335' d='M9 3.58c1.321 0 2.507.454 3.44 1.345l2.582-2.582C13.464.891 11.426 0 9 0A9 9 0 00.956 4.962l3.007 2.333C4.672 5.165 6.656 3.58 9 3.58z'/%3E%3C/svg%3E"); }
+    .st-key-login_back button { background:rgba(255,255,255,.04)!important; border:1px solid rgba(255,255,255,.18)!important; color:#eef2f7!important; box-shadow:none!important; }
     .admin-card { display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:center; padding:18px; margin:18px 0; border:1px solid rgba(255,255,255,.1); border-radius:17px; background:linear-gradient(120deg,rgba(155,108,255,.13),rgba(15,33,54,.75)); }
     .admin-avatar { width:58px; height:58px; display:grid; place-items:center; border-radius:16px; background:linear-gradient(145deg,#9b6cff,#39e58c); color:#07111f; font-size:18px; font-weight:900; }
     .admin-name { color:#fff; font-size:17px; font-weight:800; }
@@ -432,6 +440,7 @@ html(
     .survey-head h1 { margin:10px 0 7px; }
     .question-card { border:1px solid rgba(255,255,255,.08); background:rgba(16,32,54,.72); border-radius:13px; padding:12px 14px; margin:8px 0; }
     .body-stage { height:430px; display:grid; place-items:center; perspective:900px; border:1px solid rgba(255,255,255,.09); border-radius:18px; background:radial-gradient(circle at 50% 35%,rgba(155,108,255,.12),transparent 45%),#0a1727; overflow:hidden; }
+    .injury-soft-note { padding:12px 14px; border:1px solid rgba(152,169,192,.16); border-radius:12px; background:rgba(255,255,255,.035); color:#9dacbf; font-size:12px; line-height:1.55; margin-top:10px; }
     .body-model { position:relative; width:180px; height:360px; transform-style:preserve-3d; transition:transform .35s ease; filter:drop-shadow(0 18px 28px rgba(0,0,0,.35)); }
     .mesh-part { position:absolute; left:50%; transform:translateX(-50%); border:1px solid rgba(150,205,220,.62); background:repeating-linear-gradient(45deg,rgba(57,229,140,.08) 0 2px,rgba(155,108,255,.13) 2px 5px); box-shadow:inset 0 0 18px rgba(76,201,240,.08); }
     .mesh-head { top:5px; width:54px; height:65px; border-radius:45%; }
@@ -773,17 +782,21 @@ def show_demo_login():
         with forgot_col:
             if st.button("Şifremi unuttum", key="forgot_password"):
                 st.info("Demo sürümünde şifre yenileme bağlantısı gönderilmez.")
-        if st.button("Giriş Yap →", key="form_login", use_container_width=True):
+        kvkk_ok = st.checkbox(
+            "KVKK Aydınlatma Metni'ni okudum; verilerimin demo kapsamında işlenmesini kabul ediyorum.",
+            key="kvkk_consent",
+        )
+        if st.button("Giriş Yap →", key="form_login", use_container_width=True, disabled=not kvkk_ok):
             st.session_state.admin_email = email or "admin@demofc.com"
             navigate("dashboard")
         html('<div class="auth-divider">VEYA ŞUNUNLA DEVAM ET</div>')
         google_col, apple_col = st.columns(2)
         with google_col:
-            if st.button("G  Google", key="google_login", use_container_width=True):
+            if st.button("Google", key="google_login", use_container_width=True, disabled=not kvkk_ok):
                 st.session_state.admin_email = "admin@demofc.com"
                 navigate("dashboard")
         with apple_col:
-            if st.button("●  Apple", key="apple_login", use_container_width=True):
+            if st.button("  Apple", key="apple_login", use_container_width=True, disabled=not kvkk_ok):
                 st.session_state.admin_email = "admin@demofc.com"
                 navigate("dashboard")
         st.caption("Demo için alanları boş bırakarak da giriş yapabilirsiniz.")
@@ -961,6 +974,77 @@ def show_player_profile():
     render_player_analysis(player)
 
 
+INJURY_ZONES = {
+    "Baş / Yüz": (0.0, 0.0, 3.78), "Boyun": (0.0, 0.0, 3.25),
+    "Sağ omuz": (0.72, 0.0, 2.86), "Sol omuz": (-0.72, 0.0, 2.86),
+    "Sağ üst kol": (1.05, 0.0, 2.25), "Sol üst kol": (-1.05, 0.0, 2.25),
+    "Sağ dirsek": (1.22, 0.0, 1.65), "Sol dirsek": (-1.22, 0.0, 1.65),
+    "Sağ ön kol / bilek": (1.35, 0.0, 1.05), "Sol ön kol / bilek": (-1.35, 0.0, 1.05),
+    "Göğüs / Kaburga": (0.0, 0.35, 2.45), "Sırt": (0.0, -0.35, 2.35),
+    "Bel": (0.0, -0.25, 1.55), "Karın": (0.0, 0.33, 1.72),
+    "Sağ kalça / kasık": (0.45, 0.2, 1.08), "Sol kalça / kasık": (-0.45, 0.2, 1.08),
+    "Sağ uyluk / adduktor": (0.48, 0.12, 0.25), "Sol uyluk / adduktor": (-0.48, 0.12, 0.25),
+    "Sağ hamstring": (0.5, -0.24, 0.15), "Sol hamstring": (-0.5, -0.24, 0.15),
+    "Sağ diz": (0.48, 0.2, -0.68), "Sol diz": (-0.48, 0.2, -0.68),
+    "Sağ baldır": (0.48, -0.05, -1.35), "Sol baldır": (-0.48, -0.05, -1.35),
+    "Sağ aşil": (0.48, -0.22, -2.03), "Sol aşil": (-0.48, -0.22, -2.03),
+    "Sağ ayak bileği": (0.48, 0.0, -2.18), "Sol ayak bileği": (-0.48, 0.0, -2.18),
+    "Sağ ayak / parmak": (0.48, 0.36, -2.42), "Sol ayak / parmak": (-0.48, 0.36, -2.42),
+}
+
+
+def ellipsoid_trace(center, radii, color="#8291a8", opacity=0.94, resolution=22):
+    """Create one smooth anatomical volume for the interactive body model."""
+    u = np.linspace(0, 2 * np.pi, resolution)
+    v = np.linspace(0, np.pi, resolution)
+    x = center[0] + radii[0] * np.outer(np.cos(u), np.sin(v))
+    y = center[1] + radii[1] * np.outer(np.sin(u), np.sin(v))
+    z = center[2] + radii[2] * np.outer(np.ones_like(u), np.cos(v))
+    return go.Surface(
+        x=x, y=y, z=z, surfacecolor=np.zeros_like(x),
+        colorscale=[[0, color], [1, color]], showscale=False,
+        opacity=opacity, hoverinfo="skip", lighting=dict(ambient=.55, diffuse=.75, specular=.4, roughness=.55),
+    )
+
+
+def build_body_figure(selected_zones):
+    fig = go.Figure()
+    # Head, neck, rib cage, abdomen and pelvis.
+    for center, radii, color in [
+        ((0, 0, 3.72), (.43, .37, .56), "#a5b0c1"), ((0, 0, 3.18), (.20, .20, .25), "#8998ad"),
+        ((0, 0, 2.48), (.82, .42, .82), "#7d8da5"), ((0, 0, 1.68), (.61, .35, .55), "#718198"),
+        ((0, 0, 1.14), (.72, .40, .45), "#687990"),
+    ]:
+        fig.add_trace(ellipsoid_trace(center, radii, color))
+    # Arms and legs use overlapping volumes to create natural joints and muscle mass.
+    for side in (-1, 1):
+        for center, radii in [
+            ((side*.88, 0, 2.48), (.30, .28, .65)), ((side*1.12, 0, 1.72), (.25, .23, .58)),
+            ((side*1.30, 0, 1.10), (.20, .19, .55)), ((side*1.34, .05, .56), (.18, .22, .23)),
+            ((side*.48, 0, .40), (.39, .36, .84)), ((side*.49, 0, -.58), (.33, .32, .62)),
+            ((side*.49, 0, -1.35), (.27, .27, .73)), ((side*.49, 0, -2.02), (.20, .21, .25)),
+            ((side*.49, .19, -2.30), (.25, .48, .18)),
+        ]:
+            fig.add_trace(ellipsoid_trace(center, radii, "#77889f"))
+    if selected_zones:
+        coords = [INJURY_ZONES[zone] for zone in selected_zones]
+        fig.add_trace(go.Scatter3d(
+            x=[p[0] for p in coords], y=[p[1] for p in coords], z=[p[2] for p in coords],
+            mode="markers", text=selected_zones, hovertemplate="<b>%{text}</b><extra></extra>",
+            marker=dict(size=9, color="#ff405e", line=dict(color="#ffd1d8", width=2)),
+        ))
+    fig.update_layout(
+        height=520, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="rgba(0,0,0,0)",
+        scene=dict(
+            bgcolor="rgba(7,17,29,.55)", aspectmode="data",
+            xaxis=dict(visible=False), yaxis=dict(visible=False), zaxis=dict(visible=False),
+            camera=dict(eye=dict(x=1.55, y=2.3, z=.35)), dragmode="orbit",
+        ),
+        showlegend=False,
+    )
+    return fig
+
+
 def show_new_player():
     logo, title, back = st.columns([1.2, 2.8, 1], vertical_alignment="center")
     with logo:
@@ -981,32 +1065,29 @@ def show_new_player():
         injury_note = st.text_area("Seçili bölgeler için açıklama", placeholder="Sakatlığın türü, tarihi ve mevcut durumu")
 
     with body_col:
-        rotation = st.slider("3D modeli döndür", 0, 360, 0, 15)
-        selected_zones = st.session_state.setdefault("injury_zones", [])
-        dots = ""
-        if "Omuz" in selected_zones:
-            dots += '<span class="injury-dot injury-shoulder"></span>'
-        if "Diz" in selected_zones:
-            dots += '<span class="injury-dot injury-knee"></span>'
-        if "Ayak bileği" in selected_zones:
-            dots += '<span class="injury-dot injury-ankle"></span>'
-        html(f'''<div class="body-stage"><div class="body-model" style="transform:rotateY({rotation}deg)"><div class="mesh-part mesh-head"></div><div class="mesh-part mesh-torso"></div><div class="mesh-part mesh-arm left"></div><div class="mesh-part mesh-arm right"></div><div class="mesh-part mesh-leg left"></div><div class="mesh-part mesh-leg right"></div>{dots}</div></div>''')
-        z1, z2, z3 = st.columns(3)
-        for col, zone in [(z1, "Omuz"), (z2, "Diz"), (z3, "Ayak bileği")]:
-            with col:
-                if st.button(zone, key=f"zone_{zone}", use_container_width=True):
-                    if zone in selected_zones:
-                        selected_zones.remove(zone)
-                    else:
-                        selected_zones.append(zone)
-                    st.rerun()
-        st.caption("Seçilen bölgeler model üzerinde kırmızı görünür. Modeli slider ile 360° döndürebilirsiniz.")
+        st.markdown("**Sakatlık bölgeleri**")
+        selected_zones = st.multiselect(
+            "Bir veya daha fazla anatomik bölge seçin",
+            options=list(INJURY_ZONES.keys()),
+            default=st.session_state.get("injury_zones", []),
+            placeholder="Örn. Sağ diz, sol hamstring…",
+            key="injury_zone_selector",
+        )
+        st.session_state.injury_zones = selected_zones
+        st.plotly_chart(
+            build_body_figure(selected_zones),
+            use_container_width=True,
+            config={"displayModeBar": False, "scrollZoom": False, "responsive": True},
+            key="interactive_injury_body",
+        )
+        html('<div class="injury-soft-note"><b>Model kullanımı:</b> Modeli fareyle tutup sağa–sola sürükleyerek 360° döndürün. Seçtiğiniz bölgeler model üzerinde kırmızı noktalarla işaretlenir; yakınlaşmak için iki parmak hareketini kullanabilirsiniz.</div>')
 
     if st.button("Oyuncuyu Kaydet ve Ankete Geç →", key="save_player", use_container_width=True):
         full_name = f"{first_name.strip()} {last_name.strip()}".strip() or "Yeni Oyuncu"
         st.session_state.selected_player = {
             "number": "—", "name": full_name, "position": position,
             "age": age, "injuries": previous_injuries, "injury_note": injury_note,
+            "injury_zones": selected_zones,
             "motivation": 0, "energy": 0, "sleep": 0, "readiness": 0,
             "stress": 0, "fatigue": 0, "status": "Anket Bekleniyor", "portrait_index": 0,
         }
