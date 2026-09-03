@@ -1025,27 +1025,27 @@ def append_low_poly_part(buffers, center, radii, angle=0, rings=7, segments=10):
             k_values.extend([upper_following, upper])
 
 
-def build_body_figure(selected_zones):
+def build_body_figure(selected_zones, rotation=0):
     buffers = ([], [], [], [], [], [])
     # Referanstaki atletik fakat cinsiyetsiz oranlara yakın, tek parça low-poly gövde.
     central_parts = [
         ((0, 0, 3.78), (.34, .30, .47), 0), ((0, 0, 3.30), (.16, .16, .24), 0),
-        ((0, 0, 2.68), (.72, .31, .62), 0), ((0, 0, 2.05), (.52, .27, .48), 0),
-        ((0, 0, 1.55), (.48, .27, .42), 0), ((0, 0, 1.16), (.58, .32, .34), 0),
+        ((0, 0, 2.68), (.84, .34, .66), 0), ((0, 0, 2.08), (.61, .30, .52), 0),
+        ((0, 0, 1.60), (.54, .29, .45), 0), ((0, 0, 1.20), (.63, .34, .38), 0),
     ]
     for center, radii, angle in central_parts:
         append_low_poly_part(buffers, center, radii, angle)
     for side in (-1, 1):
         # Omuzdan hafif dışa açılan kollar ve futbolcu oranlarında düz bacaklar.
         limb_parts = [
-            ((side*.84, 0, 2.56), (.23, .22, .57), side*18),
-            ((side*1.12, 0, 1.88), (.19, .18, .52), side*23),
-            ((side*1.34, 0, 1.29), (.15, .15, .48), side*17),
-            ((side*1.47, .03, .82), (.13, .18, .23), side*10),
-            ((side*.39, 0, .47), (.28, .27, .73), side*2),
-            ((side*.40, 0, -.38), (.25, .24, .62), 0),
-            ((side*.40, 0, -1.14), (.20, .20, .65), 0),
-            ((side*.40, 0, -1.83), (.15, .16, .44), 0),
+            ((side*.76, 0, 2.45), (.30, .25, .64), side*7),
+            ((side*.91, 0, 1.80), (.25, .21, .57), side*8),
+            ((side*1.04, 0, 1.22), (.20, .18, .53), side*7),
+            ((side*1.12, .03, .72), (.17, .20, .27), side*5),
+            ((side*.39, 0, .51), (.34, .29, .78), side*1),
+            ((side*.40, 0, -.31), (.30, .26, .68), 0),
+            ((side*.40, 0, -1.04), (.24, .22, .66), 0),
+            ((side*.40, 0, -1.72), (.18, .18, .48), 0),
             ((side*.40, .18, -2.19), (.18, .38, .14), 0),
         ]
         for center, radii, angle in limb_parts:
@@ -1053,22 +1053,9 @@ def build_body_figure(selected_zones):
     x_values, y_values, z_values, i_values, j_values, k_values = buffers
     fig = go.Figure(go.Mesh3d(
         x=x_values, y=y_values, z=z_values, i=i_values, j=j_values, k=k_values,
-        color="#17e8d1", flatshading=True, hoverinfo="skip", opacity=.10,
-        lighting=dict(ambient=.7, diffuse=.45, specular=.08, roughness=.9, fresnel=.04),
+        color="#9aa7b8", flatshading=True, hoverinfo="skip", opacity=1,
+        lighting=dict(ambient=.42, diffuse=.78, specular=.24, roughness=.72, fresnel=.08),
         lightposition=dict(x=110, y=180, z=220),
-    ))
-    # Tek mesh üzerinden üretilen wireframe: referanstaki teknik/anatomik görünüm.
-    edges = set()
-    for a, b, c in zip(i_values, j_values, k_values):
-        edges.update((tuple(sorted((a, b))), tuple(sorted((b, c))), tuple(sorted((c, a)))))
-    line_x, line_y, line_z = [], [], []
-    for a, b in edges:
-        line_x.extend((x_values[a], x_values[b], None))
-        line_y.extend((y_values[a], y_values[b], None))
-        line_z.extend((z_values[a], z_values[b], None))
-    fig.add_trace(go.Scatter3d(
-        x=line_x, y=line_y, z=line_z, mode="lines", hoverinfo="skip",
-        line=dict(color="rgba(35,235,211,.76)", width=1.15),
     ))
     if selected_zones:
         coords = [INJURY_ZONES[zone] for zone in selected_zones]
@@ -1083,14 +1070,16 @@ def build_body_figure(selected_zones):
             mode="markers", hoverinfo="skip",
             marker=dict(size=17, color="rgba(255,54,91,.20)", line=dict(width=0)),
         ))
+    angle = np.deg2rad(rotation)
     fig.update_layout(
         height=545, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="rgba(0,0,0,0)",
         scene=dict(
-            bgcolor="rgba(5,12,22,.92)", aspectmode="data",
+            bgcolor="rgba(8,17,29,.96)", aspectmode="data",
             xaxis=dict(visible=False), yaxis=dict(visible=False), zaxis=dict(visible=False),
-            camera=dict(eye=dict(x=0, y=2.45, z=.18)), dragmode="orbit",
+            camera=dict(eye=dict(x=2.45*np.sin(angle), y=2.45*np.cos(angle), z=.12)),
+            dragmode=False,
         ),
-        showlegend=False, uirevision="menteleven-injury-camera-v1",
+        showlegend=False,
     )
     return fig
 
@@ -1129,13 +1118,18 @@ def show_new_player():
         st.session_state.injury_zones = list(selected_zones)
         if selected_zones:
             st.caption(f"{len(selected_zones)} bölge seçildi: " + " · ".join(selected_zones))
+        model_rotation = st.slider(
+            "Modeli 360° döndür",
+            min_value=0, max_value=360, value=0, step=15,
+            key="injury_model_rotation",
+        )
         st.plotly_chart(
-            build_body_figure(selected_zones),
+            build_body_figure(selected_zones, model_rotation),
             use_container_width=True,
-            config={"displayModeBar": False, "scrollZoom": False, "responsive": True},
+            config={"displayModeBar": False, "staticPlot": True, "responsive": True},
             key="interactive_injury_body",
         )
-        html('<div class="injury-soft-note"><b>Model kullanımı:</b> Modeli fareyle tutup sağa–sola sürükleyerek 360° döndürün. Seçtiğiniz bölgeler model üzerinde kırmızı noktalarla işaretlenir; yakınlaşmak için iki parmak hareketini kullanabilirsiniz.</div>')
+        html('<div class="injury-soft-note"><b>Model kullanımı:</b> Üstteki kontrolü çekerek modeli 0–360° döndürün. Seçtiğiniz tüm bölgeler model üzerinde kırmızı işaretlerle gösterilir.</div>')
 
     injury_records = st.session_state.setdefault("injury_records", [])
     if st.button("＋ Daha Fazla Sakatlık Ekle", key="add_injury_record", use_container_width=True):
