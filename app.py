@@ -445,6 +445,12 @@ html(
     .question-card { border:1px solid rgba(255,255,255,.08); background:rgba(16,32,54,.72); border-radius:13px; padding:12px 14px; margin:8px 0; }
     .body-stage { height:430px; display:grid; place-items:center; perspective:900px; border:1px solid rgba(255,255,255,.09); border-radius:18px; background:radial-gradient(circle at 50% 35%,rgba(155,108,255,.12),transparent 45%),#0a1727; overflow:hidden; }
     .injury-soft-note { padding:12px 14px; border:1px solid rgba(152,169,192,.16); border-radius:12px; background:rgba(255,255,255,.035); color:#9dacbf; font-size:12px; line-height:1.55; margin-top:10px; }
+    .anatomy-render { position:relative; height:545px; overflow:hidden; border:1px solid rgba(255,255,255,.10); border-radius:18px; background:radial-gradient(circle at 50% 33%,rgba(124,102,214,.18),transparent 43%),linear-gradient(180deg,#111c2b,#07111d); }
+    .anatomy-model { position:absolute; left:50%; top:10px; width:285px; height:525px; transform-origin:50% 50%; transition:transform .18s ease; }
+    .anatomy-model svg { width:100%; height:100%; display:block; overflow:visible; }
+    .anatomy-view { position:absolute; right:14px; top:14px; z-index:3; padding:6px 9px; border:1px solid rgba(255,255,255,.12); border-radius:8px; background:rgba(5,12,22,.66); color:#9cabc0; font-size:10px; letter-spacing:.08em; }
+    .anatomy-ground { position:absolute; left:22%; right:22%; bottom:13px; height:22px; border-radius:50%; background:radial-gradient(ellipse,rgba(0,0,0,.48),transparent 68%); }
+    .body-hit { filter:drop-shadow(0 0 7px rgba(255,54,91,.92)); }
     .body-model { position:relative; width:180px; height:360px; transform-style:preserve-3d; transition:transform .35s ease; filter:drop-shadow(0 18px 28px rgba(0,0,0,.35)); }
     .mesh-part { position:absolute; left:50%; transform:translateX(-50%); border:1px solid rgba(150,205,220,.62); background:repeating-linear-gradient(45deg,rgba(57,229,140,.08) 0 2px,rgba(155,108,255,.13) 2px 5px); box-shadow:inset 0 0 18px rgba(76,201,240,.08); }
     .mesh-head { top:5px; width:54px; height:65px; border-radius:45%; }
@@ -1084,6 +1090,58 @@ def build_body_figure(selected_zones, rotation=0):
     return fig
 
 
+def render_anatomy_model(selected_zones, rotation):
+    """Stable browser-native low-poly mannequin; no WebGL dependency."""
+    radians = np.deg2rad(rotation)
+    width_scale = .34 + .66 * abs(np.cos(radians))
+    direction = -1 if 90 < rotation < 270 else 1
+    view = "ARKA" if 135 <= rotation <= 225 else "YAN" if 45 < rotation < 315 else "ÖN"
+    marker_html = ""
+    for zone in selected_zones:
+        x3d, _, z3d = INJURY_ZONES[zone]
+        x = 160 + x3d * 78
+        y = 70 + (3.8 - z3d) * 78
+        marker_html += f'''<g class="body-hit"><circle cx="{x:.1f}" cy="{y:.1f}" r="13" fill="rgba(255,54,91,.20)"/><circle cx="{x:.1f}" cy="{y:.1f}" r="6.5" fill="#ff365b" stroke="#ffd7de" stroke-width="2"/></g>'''
+    return f'''
+    <div class="anatomy-render">
+      <div class="anatomy-view">{view} · {rotation}°</div>
+      <div class="anatomy-model" style="transform:translateX(-50%) scaleX({direction * width_scale:.3f});">
+        <svg viewBox="0 0 320 620" role="img" aria-label="Cinsiyetsiz bütünsel low-poly insan modeli">
+          <defs>
+            <linearGradient id="bodyMain" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8dee8"/><stop offset=".48" stop-color="#9ca9ba"/><stop offset="1" stop-color="#68778c"/></linearGradient>
+            <linearGradient id="bodyDark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#aeb9c8"/><stop offset="1" stop-color="#5d6c81"/></linearGradient>
+            <filter id="bodyShadow"><feDropShadow dx="0" dy="13" stdDeviation="12" flood-color="#000" flood-opacity=".42"/></filter>
+          </defs>
+          <g filter="url(#bodyShadow)" stroke="#dce5ef" stroke-opacity=".20" stroke-width="1.2" stroke-linejoin="round">
+            <!-- Head and neck -->
+            <path fill="url(#bodyMain)" d="M130 37 L145 18 L174 17 L191 36 L194 72 L180 101 L161 112 L141 100 L127 72 Z"/>
+            <path fill="url(#bodyDark)" d="M145 101 L178 101 L184 137 L137 137 Z"/>
+            <!-- One continuous shoulder, torso and pelvis core -->
+            <path fill="url(#bodyMain)" d="M137 125 L105 137 L82 158 L96 198 L111 188 L119 248 L128 320 L116 354 L128 383 L160 394 L193 383 L205 354 L193 320 L202 248 L210 188 L225 198 L239 158 L216 137 L181 124 L160 139 Z"/>
+            <!-- Left arm, deliberately overlapping shoulder -->
+            <path fill="url(#bodyDark)" d="M108 137 L81 150 L61 194 L45 241 L31 291 L42 303 L60 282 L76 244 L96 207 L119 181 Z"/>
+            <path fill="url(#bodyMain)" d="M42 291 L27 319 L22 348 L31 365 L39 350 L43 371 L50 366 L51 344 L58 365 L64 357 L59 327 L60 282 Z"/>
+            <!-- Right arm -->
+            <path fill="url(#bodyDark)" d="M212 137 L239 150 L259 194 L275 241 L289 291 L278 303 L260 282 L244 244 L224 207 L201 181 Z"/>
+            <path fill="url(#bodyMain)" d="M278 291 L293 319 L298 348 L289 365 L281 350 L277 371 L270 366 L269 344 L262 365 L256 357 L261 327 L260 282 Z"/>
+            <!-- Pelvis-to-feet continuous legs -->
+            <path fill="url(#bodyMain)" d="M128 372 L158 385 L153 438 L145 490 L143 552 L134 590 L103 595 L111 579 L119 548 L114 486 L107 430 L116 354 Z"/>
+            <path fill="url(#bodyDark)" d="M192 372 L162 385 L167 438 L175 490 L177 552 L186 590 L217 595 L209 579 L201 548 L206 486 L213 430 L204 354 Z"/>
+            <!-- Low-poly anatomical facets -->
+            <path fill="#e4e8ee" fill-opacity=".24" d="M137 125 L160 139 L142 192 L111 188 L105 137 Z"/>
+            <path fill="#596a80" fill-opacity=".35" d="M181 124 L216 137 L210 188 L178 192 L160 139 Z"/>
+            <path fill="#dfe6ee" fill-opacity=".18" d="M119 248 L160 232 L160 320 L128 320 Z"/>
+            <path fill="#526278" fill-opacity=".27" d="M160 232 L202 248 L193 320 L160 320 Z"/>
+            <path fill="#e5ebf2" fill-opacity=".20" d="M128 383 L160 394 L153 438 L107 430 Z"/>
+            <path fill="#536379" fill-opacity=".30" d="M160 394 L193 383 L213 430 L167 438 Z"/>
+          </g>
+          <g>{marker_html}</g>
+        </svg>
+      </div>
+      <div class="anatomy-ground"></div>
+    </div>'''
+
+
 def show_new_player():
     logo, title, back = st.columns([1.2, 2.8, 1], vertical_alignment="center")
     with logo:
@@ -1123,12 +1181,7 @@ def show_new_player():
             min_value=0, max_value=360, value=0, step=15,
             key="injury_model_rotation",
         )
-        st.plotly_chart(
-            build_body_figure(selected_zones, model_rotation),
-            use_container_width=True,
-            config={"displayModeBar": False, "staticPlot": True, "responsive": True},
-            key="interactive_injury_body",
-        )
+        html(render_anatomy_model(selected_zones, model_rotation))
         html('<div class="injury-soft-note"><b>Model kullanımı:</b> Üstteki kontrolü çekerek modeli 0–360° döndürün. Seçtiğiniz tüm bölgeler model üzerinde kırmızı işaretlerle gösterilir.</div>')
 
     injury_records = st.session_state.setdefault("injury_records", [])
