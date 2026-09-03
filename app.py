@@ -1053,25 +1053,44 @@ def build_body_figure(selected_zones):
     x_values, y_values, z_values, i_values, j_values, k_values = buffers
     fig = go.Figure(go.Mesh3d(
         x=x_values, y=y_values, z=z_values, i=i_values, j=j_values, k=k_values,
-        color="#a7afb9", flatshading=True, hoverinfo="skip", opacity=1,
-        lighting=dict(ambient=.48, diffuse=.8, specular=.18, roughness=.82, fresnel=.08),
+        color="#17e8d1", flatshading=True, hoverinfo="skip", opacity=.10,
+        lighting=dict(ambient=.7, diffuse=.45, specular=.08, roughness=.9, fresnel=.04),
         lightposition=dict(x=110, y=180, z=220),
+    ))
+    # Tek mesh üzerinden üretilen wireframe: referanstaki teknik/anatomik görünüm.
+    edges = set()
+    for a, b, c in zip(i_values, j_values, k_values):
+        edges.update((tuple(sorted((a, b))), tuple(sorted((b, c))), tuple(sorted((c, a)))))
+    line_x, line_y, line_z = [], [], []
+    for a, b in edges:
+        line_x.extend((x_values[a], x_values[b], None))
+        line_y.extend((y_values[a], y_values[b], None))
+        line_z.extend((z_values[a], z_values[b], None))
+    fig.add_trace(go.Scatter3d(
+        x=line_x, y=line_y, z=line_z, mode="lines", hoverinfo="skip",
+        line=dict(color="rgba(35,235,211,.76)", width=1.15),
     ))
     if selected_zones:
         coords = [INJURY_ZONES[zone] for zone in selected_zones]
         fig.add_trace(go.Scatter3d(
             x=[p[0] for p in coords], y=[p[1] for p in coords], z=[p[2] for p in coords],
             mode="markers", text=selected_zones, hovertemplate="<b>%{text}</b><extra></extra>",
-            marker=dict(size=9, color="#ff405e", line=dict(color="#ffd1d8", width=2)),
+            marker=dict(size=10, color="#ff365b", opacity=1, line=dict(color="#ffd5dc", width=2)),
+        ))
+        # İşaretler modelin içinde kaybolmasın diye dış halo katmanı.
+        fig.add_trace(go.Scatter3d(
+            x=[p[0] for p in coords], y=[p[1] for p in coords], z=[p[2] for p in coords],
+            mode="markers", hoverinfo="skip",
+            marker=dict(size=17, color="rgba(255,54,91,.20)", line=dict(width=0)),
         ))
     fig.update_layout(
         height=545, margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="rgba(0,0,0,0)",
         scene=dict(
-            bgcolor="rgba(7,17,29,.55)", aspectmode="data",
+            bgcolor="rgba(5,12,22,.92)", aspectmode="data",
             xaxis=dict(visible=False), yaxis=dict(visible=False), zaxis=dict(visible=False),
             camera=dict(eye=dict(x=0, y=2.45, z=.18)), dragmode="orbit",
         ),
-        showlegend=False,
+        showlegend=False, uirevision="menteleven-injury-camera-v1",
     )
     return fig
 
@@ -1099,14 +1118,17 @@ def show_new_player():
 
     with body_col:
         st.markdown("**Sakatlık bölgeleri**")
+        if "injury_zone_selector" not in st.session_state:
+            st.session_state.injury_zone_selector = list(st.session_state.get("injury_zones", []))
         selected_zones = st.multiselect(
             "Bir veya daha fazla anatomik bölge seçin",
             options=list(INJURY_ZONES.keys()),
-            default=st.session_state.get("injury_zones", []),
             placeholder="Örn. Sağ diz, sol hamstring…",
             key="injury_zone_selector",
         )
-        st.session_state.injury_zones = selected_zones
+        st.session_state.injury_zones = list(selected_zones)
+        if selected_zones:
+            st.caption(f"{len(selected_zones)} bölge seçildi: " + " · ".join(selected_zones))
         st.plotly_chart(
             build_body_figure(selected_zones),
             use_container_width=True,
@@ -1118,7 +1140,7 @@ def show_new_player():
     injury_records = st.session_state.setdefault("injury_records", [])
     if st.button("＋ Daha Fazla Sakatlık Ekle", key="add_injury_record", use_container_width=True):
         if not selected_zones:
-            st.warning("Önce modelin üstünden en az bir sakatlık bölgesi seçin.")
+            st.warning("Önce listeden en az bir sakatlık bölgesi seçin.")
         else:
             injury_records.append({
                 "regions": list(selected_zones), "type": injury_type,
