@@ -1107,26 +1107,21 @@ def render_anatomy_model(selected_zones, rotation):
       <div class="anatomy-view">{view} · {rotation}°</div>
       <div class="anatomy-model" style="transform:translateX(-50%) scaleX({direction * width_scale:.3f});">
         <svg viewBox="0 0 320 620" role="img" aria-label="Cinsiyetsiz bütünsel low-poly insan modeli">
-          <defs>
-            <linearGradient id="bodyMain" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8dee8"/><stop offset=".48" stop-color="#9ca9ba"/><stop offset="1" stop-color="#68778c"/></linearGradient>
-            <linearGradient id="bodyDark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#aeb9c8"/><stop offset="1" stop-color="#5d6c81"/></linearGradient>
-            <filter id="bodyShadow"><feDropShadow dx="0" dy="13" stdDeviation="12" flood-color="#000" flood-opacity=".42"/></filter>
-          </defs>
-          <g filter="url(#bodyShadow)" stroke="#dce5ef" stroke-opacity=".20" stroke-width="1.2" stroke-linejoin="round">
+          <g stroke="#dce5ef" stroke-opacity=".26" stroke-width="1.2" stroke-linejoin="round">
             <!-- Head and neck -->
-            <path fill="url(#bodyMain)" d="M130 37 L145 18 L174 17 L191 36 L194 72 L180 101 L161 112 L141 100 L127 72 Z"/>
-            <path fill="url(#bodyDark)" d="M145 101 L178 101 L184 137 L137 137 Z"/>
+            <path fill="#aab5c4" d="M130 37 L145 18 L174 17 L191 36 L194 72 L180 101 L161 112 L141 100 L127 72 Z"/>
+            <path fill="#7e8da1" d="M145 101 L178 101 L184 137 L137 137 Z"/>
             <!-- One continuous shoulder, torso and pelvis core -->
-            <path fill="url(#bodyMain)" d="M137 125 L105 137 L82 158 L96 198 L111 188 L119 248 L128 320 L116 354 L128 383 L160 394 L193 383 L205 354 L193 320 L202 248 L210 188 L225 198 L239 158 L216 137 L181 124 L160 139 Z"/>
+            <path fill="#9aa7b8" d="M137 125 L105 137 L82 158 L96 198 L111 188 L119 248 L128 320 L116 354 L128 383 L160 394 L193 383 L205 354 L193 320 L202 248 L210 188 L225 198 L239 158 L216 137 L181 124 L160 139 Z"/>
             <!-- Left arm, deliberately overlapping shoulder -->
-            <path fill="url(#bodyDark)" d="M108 137 L81 150 L61 194 L45 241 L31 291 L42 303 L60 282 L76 244 L96 207 L119 181 Z"/>
-            <path fill="url(#bodyMain)" d="M42 291 L27 319 L22 348 L31 365 L39 350 L43 371 L50 366 L51 344 L58 365 L64 357 L59 327 L60 282 Z"/>
+            <path fill="#7d8ca0" d="M108 137 L81 150 L61 194 L45 241 L31 291 L42 303 L60 282 L76 244 L96 207 L119 181 Z"/>
+            <path fill="#a8b3c2" d="M42 291 L27 319 L22 348 L31 365 L39 350 L43 371 L50 366 L51 344 L58 365 L64 357 L59 327 L60 282 Z"/>
             <!-- Right arm -->
-            <path fill="url(#bodyDark)" d="M212 137 L239 150 L259 194 L275 241 L289 291 L278 303 L260 282 L244 244 L224 207 L201 181 Z"/>
-            <path fill="url(#bodyMain)" d="M278 291 L293 319 L298 348 L289 365 L281 350 L277 371 L270 366 L269 344 L262 365 L256 357 L261 327 L260 282 Z"/>
+            <path fill="#748398" d="M212 137 L239 150 L259 194 L275 241 L289 291 L278 303 L260 282 L244 244 L224 207 L201 181 Z"/>
+            <path fill="#9eabba" d="M278 291 L293 319 L298 348 L289 365 L281 350 L277 371 L270 366 L269 344 L262 365 L256 357 L261 327 L260 282 Z"/>
             <!-- Pelvis-to-feet continuous legs -->
-            <path fill="url(#bodyMain)" d="M128 372 L158 385 L153 438 L145 490 L143 552 L134 590 L103 595 L111 579 L119 548 L114 486 L107 430 L116 354 Z"/>
-            <path fill="url(#bodyDark)" d="M192 372 L162 385 L167 438 L175 490 L177 552 L186 590 L217 595 L209 579 L201 548 L206 486 L213 430 L204 354 Z"/>
+            <path fill="#9facbb" d="M128 372 L158 385 L153 438 L145 490 L143 552 L134 590 L103 595 L111 579 L119 548 L114 486 L107 430 L116 354 Z"/>
+            <path fill="#758499" d="M192 372 L162 385 L167 438 L175 490 L177 552 L186 590 L217 595 L209 579 L201 548 L206 486 L213 430 L204 354 Z"/>
             <!-- Low-poly anatomical facets -->
             <path fill="#e4e8ee" fill-opacity=".24" d="M137 125 L160 139 L142 192 L111 188 L105 137 Z"/>
             <path fill="#596a80" fill-opacity=".35" d="M181 124 L216 137 L210 188 L178 192 L160 139 Z"/>
