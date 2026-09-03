@@ -41,7 +41,8 @@ def asset_data_uri(filename):
     path = Path(__file__).parent / "assets" / filename
     if not path.exists():
         return ""
-    mime = "image/png" if path.suffix.lower() == ".png" else "image/jpeg"
+    mime_types = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".svg": "image/svg+xml"}
+    mime = mime_types.get(path.suffix.lower(), "application/octet-stream")
     encoded = base64.b64encode(path.read_bytes()).decode("ascii")
     return f"data:{mime};base64,{encoded}"
 
@@ -50,6 +51,7 @@ HERO_IMAGE = asset_data_uri("hero-footballer.png")
 PORTRAIT_SHEET = asset_data_uri("player-portraits.png")
 HEATMAP_IMAGE = asset_data_uri("emotional-heatmap-base.png")
 BODY_MAP_IMAGE = asset_data_uri("scientific-body-map.png")
+LOGO_IMAGE = asset_data_uri("menteleven-logo.svg")
 
 SURVEY = {
     "Stres": [
@@ -205,6 +207,7 @@ html(
     .route-button.secondary { background:rgba(155,108,255,.09); border-color:rgba(155,108,255,.35); box-shadow:none; }
 
     .brand { display:flex; align-items:center; gap:11px; height:46px; }
+    .brand-logo { display:block; width:190px; max-width:100%; height:auto; }
     .brand-mark {
         width:35px; height:35px; display:grid; place-items:center;
         border-radius:10px; background:linear-gradient(145deg, var(--green), #18b96a);
@@ -551,14 +554,7 @@ html(
 
 
 def brand():
-    html(
-        """
-        <div class="brand">
-            <div class="brand-mark">M11</div>
-            <div class="brand-name">Menteleven</div>
-        </div>
-        """
-    )
+    html(f'<div class="brand"><img class="brand-logo" src="{LOGO_IMAGE}" alt="Menteleven"></div>')
 
 
 def show_landing_page():
