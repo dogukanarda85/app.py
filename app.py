@@ -12,11 +12,8 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-VALID_PAGES = {"landing", "demo_login", "dashboard", "player_profile"}
-route = st.query_params.get("page", "landing")
-if route not in VALID_PAGES:
-    route = "landing"
-st.session_state.page = route
+if "page" not in st.session_state:
+    st.session_state.page = "landing"
 
 if "language" not in st.session_state:
     st.session_state.language = "TR — Türkçe"
@@ -29,8 +26,12 @@ def html(content):
 
 def navigate(page):
     st.session_state.page = page
-    st.query_params["page"] = page
     st.rerun()
+
+
+def set_page(page):
+    """Streamlit button callback: runs before the page rerenders."""
+    st.session_state.page = page
 
 
 def asset_data_uri(filename):
@@ -424,7 +425,13 @@ def show_landing_page():
         )
         st.session_state.language = selected
     with button_col:
-        html('<a class="route-button" href="https://player-wellbeing-demo.streamlit.app/?page=demo_login" target="_top">Canlı Demo</a>')
+        st.button(
+            "Canlı Demo",
+            key="header_demo",
+            use_container_width=True,
+            on_click=set_page,
+            args=("demo_login",),
+        )
 
     if st.session_state.language != "TR — Türkçe":
         st.info("Seçtiğiniz dil demo sürümünde yakında aktif olacaktır. İçerik şimdilik Türkçedir.")
@@ -605,7 +612,13 @@ def show_demo_login():
     with top_left:
         brand()
     with top_right:
-        html('<a class="route-button secondary" href="https://player-wellbeing-demo.streamlit.app/?page=landing" target="_top">← Siteye Dön</a>')
+        st.button(
+            "← Siteye Dön",
+            key="login_back",
+            use_container_width=True,
+            on_click=set_page,
+            args=("landing",),
+        )
 
     html('<div style="height:60px"></div><div style="text-align:center"><div class="eyebrow">CANLI ÜRÜN DEMOSU</div><h1>Demo Kulübüne Giriş</h1><p>Platformu farklı ekip rollerinden biriyle inceleyin.</p></div>')
     left, center, right = st.columns([1, 1.35, 1])
@@ -623,7 +636,13 @@ def show_dashboard():
     with title:
         html('<div style="color:#8fa1b7;font-size:13px">DEMO FC · A TAKIM · ANTRENMAN GÜNÜ</div>')
     with back:
-        html('<a class="route-button secondary" href="https://player-wellbeing-demo.streamlit.app/?page=landing" target="_top">← Landing Page</a>')
+        st.button(
+            "← Landing Page",
+            key="dashboard_back",
+            use_container_width=True,
+            on_click=set_page,
+            args=("landing",),
+        )
 
     html('<div style="margin:24px 0 18px"><div class="eyebrow">KULÜP ANALİTİĞİ</div><h1 style="margin:12px 0 5px;font-size:36px">Takım Kontrol Merkezi</h1><p>2 Eylül · Son oyuncu değerlendirmesi bugün 09:30\'da tamamlandı.</p></div>')
     c1, c2, c3, c4 = st.columns(4)
@@ -693,7 +712,6 @@ def show_dashboard():
                     "status": status_text,
                     "portrait_index": portrait_index,
                 }
-                st.query_params["player"] = str(portrait_index)
                 navigate("player_profile")
     st.caption("Bu sonuçlar psikolojik veya tıbbi teşhis değildir; uzman karar sürecini destekler.")
 
@@ -710,7 +728,13 @@ def show_player_profile():
     with title:
         html('<div style="color:#8fa1b7;font-size:13px">OYUNCU WELLBEING PROFİLİ</div>')
     with back:
-        html('<a class="route-button secondary" href="https://player-wellbeing-demo.streamlit.app/?page=dashboard" target="_top">← Dashboard</a>')
+        st.button(
+            "← Dashboard",
+            key="profile_back",
+            use_container_width=True,
+            on_click=set_page,
+            args=("dashboard",),
+        )
 
     html(f"""
     <div class="profile-head" style="margin-top:26px">
