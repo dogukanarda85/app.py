@@ -124,7 +124,25 @@ html(
         color:#07111f; font-weight:900; font-size:14px;
     }
     .brand-name { color:#fff; font-size:21px; font-weight:820; letter-spacing:-.5px; }
-    .nav-links { color:#91a4ba; font-size:14px; padding-top:13px; text-align:center; white-space:nowrap; }
+    .nav-links { color:#91a4ba; font-size:14px; height:46px; display:flex; align-items:center; justify-content:center; gap:30px; white-space:nowrap; }
+    .nav-links span { display:inline-block; }
+    .lang-menu { position:relative; height:46px; display:flex; align-items:center; justify-content:center; }
+    .lang-menu summary { list-style:none; cursor:pointer; display:flex; align-items:center; gap:8px; color:#d8e0ea; font-size:12px; font-weight:700; padding:8px 5px; user-select:none; }
+    .lang-menu summary::-webkit-details-marker { display:none; }
+    .globe-icon { width:16px; height:16px; border:1.4px solid #a8b6c7; border-radius:50%; display:inline-block; position:relative; }
+    .globe-icon:before { content:""; position:absolute; left:3px; right:3px; top:-1px; bottom:-1px; border-left:1px solid #a8b6c7; border-right:1px solid #a8b6c7; border-radius:50%; }
+    .globe-icon:after { content:""; position:absolute; left:1px; right:1px; top:7px; height:1px; background:#a8b6c7; }
+    .lang-chevron { color:#7f91a7; font-size:12px; transition:transform .2s ease; }
+    .lang-menu[open] .lang-chevron { transform:rotate(180deg); }
+    .lang-options { position:absolute; z-index:40; top:43px; right:0; width:145px; padding:7px; border:1px solid rgba(255,255,255,.1); border-radius:12px; background:#101f33; box-shadow:0 18px 45px rgba(0,0,0,.35); }
+    .lang-options div { color:#9fb0c2; padding:8px 9px; border-radius:7px; font-size:11px; }
+    .lang-options div:first-child { color:#fff; background:rgba(155,108,255,.13); }
+    .st-key-login_cta button { background:linear-gradient(135deg,#39e58c,#20bc6b) !important; border-color:#39e58c !important; color:#07111f !important; box-shadow:0 10px 26px rgba(57,229,140,.18) !important; }
+    .st-key-login_cta button p, .st-key-login_cta button span { color:#07111f !important; }
+    .st-key-login_cta button:hover { background:linear-gradient(135deg,#57ef9f,#2dce7b) !important; border-color:#57ef9f !important; }
+    .st-key-signup_cta button { background:rgba(255,255,255,.025) !important; border-color:rgba(235,241,247,.55) !important; color:#f1f5f9 !important; box-shadow:none !important; }
+    .st-key-signup_cta button p, .st-key-signup_cta button span { color:#f1f5f9 !important; }
+    .st-key-signup_cta button:hover { background:rgba(255,255,255,.08) !important; border-color:#fff !important; }
 
     .hero { text-align:center; padding:72px 0 34px; }
     .eyebrow {
@@ -402,32 +420,34 @@ def brand():
 
 
 def show_landing_page():
-    logo_col, nav_col, language_col, button_col = st.columns(
-        [1.3, 2.8, 1.25, 1.15], vertical_alignment="center"
+    logo_col, nav_col, language_col, login_col, signup_col = st.columns(
+        [1.25, 2.65, .62, .9, .9], vertical_alignment="center"
     )
     with logo_col:
         brand()
     with nav_col:
-        html('<div class="nav-links">Ürün &nbsp;&nbsp; Nasıl Çalışır &nbsp;&nbsp; Analizler &nbsp;&nbsp; Güvenlik</div>')
+        html('<div class="nav-links"><span>Ürün</span><span>Nasıl Çalışır</span><span>Analizler</span><span>Güvenlik</span></div>')
     with language_col:
-        languages = [
-            "TR — Türkçe",
-            "EN — English",
-            "ES — Español",
-            "IT — Italiano",
-            "FR — Français",
-        ]
-        selected = st.selectbox(
-            "Dil",
-            languages,
-            index=languages.index(st.session_state.language),
-            label_visibility="collapsed",
-        )
-        st.session_state.language = selected
-    with button_col:
+        html('''
+        <details class="lang-menu">
+            <summary><span class="globe-icon"></span><span>TR</span><span class="lang-chevron">⌄</span></summary>
+            <div class="lang-options">
+                <div>TR · Türkçe</div><div>EN · English</div><div>ES · Español</div><div>IT · Italiano</div><div>FR · Français</div>
+            </div>
+        </details>
+        ''')
+    with login_col:
         st.button(
-            "Canlı Demo",
-            key="header_demo",
+            "Giriş Yap",
+            key="login_cta",
+            use_container_width=True,
+            on_click=set_page,
+            args=("demo_login",),
+        )
+    with signup_col:
+        st.button(
+            "Üye Ol",
+            key="signup_cta",
             use_container_width=True,
             on_click=set_page,
             args=("demo_login",),
