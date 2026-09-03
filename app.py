@@ -1,5 +1,6 @@
 import base64
 import textwrap
+from datetime import date, timedelta
 from pathlib import Path
 
 import streamlit as st
@@ -46,6 +47,89 @@ def asset_data_uri(filename):
 HERO_IMAGE = asset_data_uri("hero-footballer.png")
 PORTRAIT_SHEET = asset_data_uri("player-portraits.png")
 HEATMAP_IMAGE = asset_data_uri("emotional-heatmap-base.png")
+
+SURVEY = {
+    "Stres": [
+        "Bugünkü antrenman veya maç öncesinde kendimi baskı altında hissediyorum.",
+        "Son günlerde saha içindeki hatalarımı gereğinden fazla düşünüyorum.",
+        "Teknik ekibin beklentileri bende gerginlik yaratıyor.",
+        "Takım içindeki rolüm konusunda endişe hissediyorum.",
+        "Maç sırasında sakin kalmakta zorlanıyorum.",
+        "Son günlerde zihnimi futboldan uzaklaştırmakta zorlanıyorum.",
+        "Rekabet ve kadro seçimi üzerimde baskı oluşturuyor.",
+        "Antrenman sonrasında zihinsel olarak rahatlayamıyorum.",
+        "Performansımla ilgili düşünceler uykumu etkiliyor.",
+        "Şu anda stresimi kontrol edebildiğimi hissediyorum.",
+    ],
+    "Motivasyon": [
+        "Bugünkü antrenmana yüksek istekle katılıyorum.",
+        "Takım hedefleri için ekstra çaba göstermeye hazırım.",
+        "Kendimi geliştirme isteğim yüksek.",
+        "Sahaya çıktığımda mücadele etme arzum güçlü.",
+        "Teknik ekibin geri bildirimleri beni motive ediyor.",
+        "Takımdaki rolüm bana anlamlı geliyor.",
+        "Zorlu antrenmanlarda odağımı koruyabiliyorum.",
+        "Yaklaşan maç için heyecan ve istek duyuyorum.",
+        "Bireysel hedeflerime ulaşabileceğime inanıyorum.",
+        "Bugün elimden gelenin en iyisini vermek istiyorum.",
+    ],
+    "Enerji": [
+        "Sabah uyandığımda kendimi enerjik hissettim.",
+        "Isınma sırasında vücudum hızlı şekilde hazırlandı.",
+        "Antrenmanın tamamında enerji seviyemi koruyabiliyorum.",
+        "Koşu ve sprintlerde kendimi canlı hissediyorum.",
+        "Gün içinde ani enerji düşüşleri yaşamıyorum.",
+        "Kaslarım hareketlere güçlü tepki veriyor.",
+        "Zihinsel olarak uyanık ve odaklanmış hissediyorum.",
+        "Antrenman sonuna kadar tempomu koruyabilirim.",
+        "Beslenme ve sıvı tüketimim enerji seviyemi destekliyor.",
+        "Bugün fiziksel olarak aktif olmaya hazırım.",
+    ],
+    "Yorgunluk": [
+        "Kaslarımda belirgin bir ağırlık hissediyorum.",
+        "Önceki antrenmanın yorgunluğunu hâlâ taşıyorum.",
+        "Sprint ve yön değiştirmelerde normalden çabuk yoruluyorum.",
+        "Antrenman sonrasında toparlanmam uzun sürüyor.",
+        "Bacaklarımda güç kaybı hissediyorum.",
+        "Zihinsel olarak tükenmiş hissediyorum.",
+        "Günlük aktivitelerde normalden fazla yoruluyorum.",
+        "Dinlenmeme rağmen yorgunluğum devam ediyor.",
+        "Konsantrasyonumu sürdürmekte zorlanıyorum.",
+        "Bugünkü yüklenmenin benim için fazla olabileceğini düşünüyorum.",
+    ],
+    "Uyku": [
+        "Geçen gece yeterli süre uyudum.",
+        "Uykuya kolayca geçebildim.",
+        "Gece boyunca sık sık uyanmadım.",
+        "Sabah dinlenmiş şekilde uyandım.",
+        "Uyku düzenim son bir haftadır istikrarlı.",
+        "Uyku öncesinde zihnimi rahatlatabildim.",
+        "Kas ağrıları uykumu bozmadı.",
+        "Uyandığımda tekrar uyuma ihtiyacı hissetmedim.",
+        "Uyku kalitem antrenmana hazır olmamı destekliyor.",
+        "Bugünkü uyku seviyemden memnunum.",
+    ],
+    "Hazırlık": [
+        "Bugünkü antrenman veya maç için fiziksel olarak hazırım.",
+        "Taktik görevlerimi net şekilde biliyorum.",
+        "Zihinsel odağım saha içi görevlerime hazır.",
+        "Vücudumda performansımı sınırlayacak bir ağrı hissetmiyorum.",
+        "Takım arkadaşlarımla iletişim kurmaya hazırım.",
+        "Maç temposuna uyum sağlayabileceğime inanıyorum.",
+        "Karar verme hızımın iyi olduğunu hissediyorum.",
+        "Isınma sonrasında kendimi tamamen hazır hissediyorum.",
+        "Teknik ve fiziksel hedeflerimi biliyorum.",
+        "Bugün yüksek performans gösterebileceğime inanıyorum.",
+    ],
+}
+
+ANSWER_OPTIONS = [
+    "1 · Kesinlikle katılmıyorum",
+    "2 · Katılmıyorum",
+    "3 · Kararsızım",
+    "4 · Katılıyorum",
+    "5 · Kesinlikle katılıyorum",
+]
 
 
 html(
@@ -329,6 +413,39 @@ html(
     .plan-button { margin-top:18px; border-radius:10px; padding:11px 12px; text-align:center; color:#fff; font-size:12px; font-weight:780; border:1px solid rgba(155,108,255,.38); background:rgba(155,108,255,.12); }
     .featured .plan-button { background:linear-gradient(135deg,#9b6cff,#6f4be8); border-color:#9b6cff; }
     .footer-note { margin-top:70px; border-top:1px solid var(--border); padding-top:25px; color:#73869b; font-size:12px; text-align:center; }
+    .auth-shell { max-width:500px; margin:40px auto 0; padding:28px; border:1px solid rgba(255,255,255,.1); border-radius:20px; background:linear-gradient(145deg,rgba(20,39,63,.82),rgba(10,24,41,.86)); box-shadow:0 28px 80px rgba(0,0,0,.28); }
+    .auth-title { text-align:center; }
+    .auth-title h1 { margin:12px 0 6px; font-size:32px; }
+    .auth-title p { margin:0 0 20px; font-size:13px; }
+    .auth-divider { display:flex; align-items:center; gap:12px; color:#71849a; font-size:10px; margin:17px 0; }
+    .auth-divider:before,.auth-divider:after { content:""; height:1px; background:rgba(255,255,255,.09); flex:1; }
+    .admin-card { display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:center; padding:18px; margin:18px 0; border:1px solid rgba(255,255,255,.1); border-radius:17px; background:linear-gradient(120deg,rgba(155,108,255,.13),rgba(15,33,54,.75)); }
+    .admin-avatar { width:58px; height:58px; display:grid; place-items:center; border-radius:16px; background:linear-gradient(145deg,#9b6cff,#39e58c); color:#07111f; font-size:18px; font-weight:900; }
+    .admin-name { color:#fff; font-size:17px; font-weight:800; }
+    .admin-meta { color:#8799ad; font-size:11px; line-height:1.55; margin-top:3px; }
+    .club-badge { padding:8px 10px; border-radius:10px; border:1px solid rgba(57,229,140,.25); background:rgba(57,229,140,.08); color:#59eca0; font-size:10px; font-weight:800; }
+    .step-track { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin:18px 0 24px; }
+    .step-item { height:5px; border-radius:99px; background:rgba(255,255,255,.08); }
+    .step-item.done { background:#39e58c; }
+    .step-item.active { background:#9b6cff; box-shadow:0 0 12px rgba(155,108,255,.42); }
+    .survey-head { text-align:center; max-width:700px; margin:24px auto; }
+    .survey-head h1 { margin:10px 0 7px; }
+    .question-card { border:1px solid rgba(255,255,255,.08); background:rgba(16,32,54,.72); border-radius:13px; padding:12px 14px; margin:8px 0; }
+    .body-stage { height:430px; display:grid; place-items:center; perspective:900px; border:1px solid rgba(255,255,255,.09); border-radius:18px; background:radial-gradient(circle at 50% 35%,rgba(155,108,255,.12),transparent 45%),#0a1727; overflow:hidden; }
+    .body-model { position:relative; width:180px; height:360px; transform-style:preserve-3d; transition:transform .35s ease; filter:drop-shadow(0 18px 28px rgba(0,0,0,.35)); }
+    .mesh-part { position:absolute; left:50%; transform:translateX(-50%); border:1px solid rgba(150,205,220,.62); background:repeating-linear-gradient(45deg,rgba(57,229,140,.08) 0 2px,rgba(155,108,255,.13) 2px 5px); box-shadow:inset 0 0 18px rgba(76,201,240,.08); }
+    .mesh-head { top:5px; width:54px; height:65px; border-radius:45%; }
+    .mesh-torso { top:76px; width:95px; height:125px; clip-path:polygon(15% 0,85% 0,100% 100%,0 100%); }
+    .mesh-arm { top:83px; width:28px; height:145px; border-radius:45%; }
+    .mesh-arm.left { left:22px; transform:rotate(8deg); }
+    .mesh-arm.right { left:auto; right:22px; transform:rotate(-8deg); }
+    .mesh-leg { top:205px; width:38px; height:150px; border-radius:35% 35% 28% 28%; }
+    .mesh-leg.left { left:44px; transform:rotate(2deg); }
+    .mesh-leg.right { left:auto; right:44px; transform:rotate(-2deg); }
+    .injury-dot { position:absolute; width:16px; height:16px; border-radius:50%; background:#ff5368; border:3px solid rgba(255,255,255,.85); box-shadow:0 0 18px #ff5368; z-index:4; }
+    .injury-shoulder { top:85px; left:34px; }
+    .injury-knee { top:270px; right:45px; }
+    .injury-ankle { top:333px; left:49px; }
 
     div[data-testid="stMetric"] {
         background:linear-gradient(145deg, rgba(20,39,63,.78), rgba(11,26,44,.76));
@@ -640,13 +757,36 @@ def show_demo_login():
             args=("landing",),
         )
 
-    html('<div style="height:60px"></div><div style="text-align:center"><div class="eyebrow">CANLI ÜRÜN DEMOSU</div><h1>Demo Kulübüne Giriş</h1><p>Platformu farklı ekip rollerinden biriyle inceleyin.</p></div>')
-    left, center, right = st.columns([1, 1.35, 1])
+    html('<div style="height:35px"></div>')
+    left, center, right = st.columns([1, 1.25, 1])
     with center:
-        role = st.selectbox("Rolünüz", ["Teknik Direktör", "Spor Psikoloğu", "Performans Ekibi"])
-        st.caption(f"{role} görünümüyle devam edeceksiniz. Tüm demo verileri kurgusaldır.")
-        if st.button("Demo Hesabıyla Devam Et →", use_container_width=True):
+        html('''
+        <div class="auth-title">
+            <div class="eyebrow">KULÜP HESABI</div>
+            <h1>Menteleven'a giriş yapın</h1>
+            <p>Takımınızın wellbeing kontrol merkezine güvenli şekilde erişin.</p>
+        </div>
+        ''')
+        email = st.text_input("E-posta adresi", placeholder="admin@demofc.com")
+        password = st.text_input("Şifre", type="password", placeholder="••••••••")
+        forgot_col, empty_col = st.columns([1, 1])
+        with forgot_col:
+            if st.button("Şifremi unuttum", key="forgot_password"):
+                st.info("Demo sürümünde şifre yenileme bağlantısı gönderilmez.")
+        if st.button("Giriş Yap →", key="form_login", use_container_width=True):
+            st.session_state.admin_email = email or "admin@demofc.com"
             navigate("dashboard")
+        html('<div class="auth-divider">VEYA ŞUNUNLA DEVAM ET</div>')
+        google_col, apple_col = st.columns(2)
+        with google_col:
+            if st.button("G  Google", key="google_login", use_container_width=True):
+                st.session_state.admin_email = "admin@demofc.com"
+                navigate("dashboard")
+        with apple_col:
+            if st.button("●  Apple", key="apple_login", use_container_width=True):
+                st.session_state.admin_email = "admin@demofc.com"
+                navigate("dashboard")
+        st.caption("Demo için alanları boş bırakarak da giriş yapabilirsiniz.")
 
 
 def show_dashboard():
@@ -664,7 +804,31 @@ def show_dashboard():
             args=("landing",),
         )
 
+    html('''
+    <div class="admin-card">
+        <div class="admin-avatar">TD</div>
+        <div>
+            <div class="admin-name">Murat Demir</div>
+            <div class="admin-meta">Teknik Direktör · 44 yaş · UEFA Pro Lisans<br>admin@demofc.com · İstanbul, Türkiye</div>
+        </div>
+        <div class="club-badge">DEMO FC · A TAKIM</div>
+    </div>
+    ''')
+
     html('<div style="margin:24px 0 18px"><div class="eyebrow">KULÜP ANALİTİĞİ</div><h1 style="margin:12px 0 5px;font-size:36px">Takım Kontrol Merkezi</h1><p>2 Eylül · Son oyuncu değerlendirmesi bugün 09:30\'da tamamlandı.</p></div>')
+    filter_col, status_col, add_col = st.columns([1.7, 1, 1.15], vertical_alignment="bottom")
+    with filter_col:
+        st.date_input(
+            "Analiz tarih aralığı",
+            value=(date.today() - timedelta(days=7), date.today()),
+            format="DD.MM.YYYY",
+        )
+    with status_col:
+        st.selectbox("Oyuncu durumu", ["Tüm oyuncular", "Dengeli", "Takip edilmeli"])
+    with add_col:
+        if st.button("＋ Yeni Oyuncu Girişi", key="new_player_cta", use_container_width=True):
+            navigate("new_player")
+
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Toplam Oyuncu", "24")
     c2.metric("Takım Motivasyonu", "82", "+4")
@@ -736,6 +900,33 @@ def show_dashboard():
     st.caption("Bu sonuçlar psikolojik veya tıbbi teşhis değildir; uzman karar sürecini destekler.")
 
 
+def render_player_analysis(player):
+    c1, c2, c3, c4, c5, c6 = st.columns(6)
+    c1.metric("Motivasyon", player["motivation"], "+4")
+    c2.metric("Enerji", player["energy"], "-2")
+    c3.metric("Uyku", player["sleep"], "-5")
+    c4.metric("Hazırlık", player["readiness"], "+1")
+    c5.metric("Stres", player["stress"], "-3")
+    c6.metric("Yorgunluk", player["fatigue"], "+2", delta_color="inverse")
+    html(f"""
+    <div class="profile-grid">
+        <div class="glass-card">
+            <div class="glass-title"><b>Bireysel Spider Chart</b><span>SON 7 GÜN</span></div>
+            <div class="radar-wrap"><div class="css-radar" role="img" aria-label="Oyuncunun altı metrikli spider chart görünümü">
+                <div class="radar-hex"></div><div class="radar-hex mid"></div><div class="radar-hex inner"></div><div class="radar-fill"></div><div class="radar-center"></div>
+                <span class="radar-label-css rl-top">MOTİVASYON</span><span class="radar-label-css rl-ur">ENERJİ</span><span class="radar-label-css rl-lr">UYKU</span><span class="radar-label-css rl-bottom">HAZIRLIK</span><span class="radar-label-css rl-ll">YORGUNLUK</span><span class="radar-label-css rl-ul">STRES</span>
+            </div></div>
+            <div class="score-grid">
+                <div class="score green"><span>Motivasyon</span><b>{player['motivation']}</b></div><div class="score cyan"><span>Enerji</span><b>{player['energy']}</b></div><div class="score purple"><span>Uyku</span><b>{player['sleep']}</b></div>
+                <div class="score green"><span>Hazırlık</span><b>{player['readiness']}</b></div><div class="score red"><span>Yorgunluk</span><b>{player['fatigue']}</b></div><div class="score yellow"><span>Stres</span><b>{player['stress']}</b></div>
+            </div>
+        </div>
+        <div class="glass-card"><div class="glass-title"><b>Öz-Bildirim İlişkili Duygusal Yük Haritası</b><span>BUGÜN</span></div><div class="heatmap-photo" style="min-height:360px;border-radius:12px"><div class="signal-badge">Duygusal yük sinyali<br><b>Orta</b></div><div class="heat-legend"><span>Düşük</span><span class="legend-bar"></span><span>Yüksek</span></div></div></div>
+    </div>
+    <div class="glass-card" style="margin-top:15px"><div class="glass-title"><b>AI Destekli Değerlendirme Özeti</b><span>UZMAN KONTROLÜ GEREKİR</span></div><p style="line-height:1.7;margin:0">Oyuncunun motivasyonu ve hazırlık seviyesi diğer metriklerle birlikte değerlendirildi. Bu çıktı teşhis değildir; gerektiğinde oyuncuyla görüşme yapılması önerilir.</p></div>
+    """)
+
+
 def show_player_profile():
     player = st.session_state.get("selected_player", {
         "number": "10", "name": "Emre Demir", "position": "10 Numara",
@@ -767,56 +958,134 @@ def show_player_profile():
         </div>
     </div>
     """)
+    render_player_analysis(player)
 
-    c1, c2, c3, c4, c5, c6 = st.columns(6)
-    c1.metric("Motivasyon", player["motivation"], "+4")
-    c2.metric("Enerji", player["energy"], "-2")
-    c3.metric("Uyku", player["sleep"], "-5")
-    c4.metric("Hazırlık", player["readiness"], "+1")
-    c5.metric("Stres", player["stress"], "-3")
-    c6.metric("Yorgunluk", player["fatigue"], "+2", delta_color="inverse")
 
-    html(f"""
-    <div class="profile-grid">
-        <div class="glass-card">
-            <div class="glass-title"><b>Bireysel Spider Chart</b><span>SON 7 GÜN</span></div>
-            <div class="radar-wrap">
-                <div class="css-radar" role="img" aria-label="Oyuncunun altı metrikli spider chart görünümü">
-                    <div class="radar-hex"></div>
-                    <div class="radar-hex mid"></div>
-                    <div class="radar-hex inner"></div>
-                    <div class="radar-fill"></div>
-                    <div class="radar-center"></div>
-                    <span class="radar-label-css rl-top">MOTİVASYON</span>
-                    <span class="radar-label-css rl-ur">ENERJİ</span>
-                    <span class="radar-label-css rl-lr">UYKU</span>
-                    <span class="radar-label-css rl-bottom">HAZIRLIK</span>
-                    <span class="radar-label-css rl-ll">YORGUNLUK</span>
-                    <span class="radar-label-css rl-ul">STRES</span>
-                </div>
-            </div>
-            <div class="score-grid">
-                <div class="score green"><span>Motivasyon</span><b>{player['motivation']}</b></div>
-                <div class="score cyan"><span>Enerji</span><b>{player['energy']}</b></div>
-                <div class="score purple"><span>Uyku</span><b>{player['sleep']}</b></div>
-                <div class="score green"><span>Hazırlık</span><b>{player['readiness']}</b></div>
-                <div class="score red"><span>Yorgunluk</span><b>{player['fatigue']}</b></div>
-                <div class="score yellow"><span>Stres</span><b>{player['stress']}</b></div>
-            </div>
-        </div>
-        <div class="glass-card">
-            <div class="glass-title"><b>Öz-Bildirim İlişkili Duygusal Yük Haritası</b><span>BUGÜN</span></div>
-            <div class="heatmap-photo" style="min-height:360px;border-radius:12px">
-                <div class="signal-badge">Duygusal yük sinyali<br><b>Orta</b></div>
-                <div class="heat-legend"><span>Düşük</span><span class="legend-bar"></span><span>Yüksek</span></div>
-            </div>
-        </div>
-    </div>
-    <div class="glass-card" style="margin-top:15px">
-        <div class="glass-title"><b>AI Destekli Değerlendirme Özeti</b><span>UZMAN KONTROLÜ GEREKİR</span></div>
-        <p style="line-height:1.7;margin:0">Oyuncunun motivasyonu dengeli seyrediyor. Son üç değerlendirmede uyku değerinde sınırlı düşüş gözlendi. Bu çıktı teşhis değildir; oyuncuyla kısa bir görüşme yapılması önerilir.</p>
-    </div>
-    """)
+def show_new_player():
+    logo, title, back = st.columns([1.2, 2.8, 1], vertical_alignment="center")
+    with logo:
+        brand()
+    with title:
+        html('<div style="color:#8fa1b7;font-size:13px">YENİ OYUNCU KAYDI</div>')
+    with back:
+        st.button("← Dashboard", key="new_player_back", use_container_width=True, on_click=set_page, args=("dashboard",))
+
+    html('<div class="survey-head"><div class="eyebrow">OYUNCU PROFİLİ</div><h1>Yeni oyuncu oluşturun</h1><p>Temel oyuncu bilgilerini ve geçmiş sakatlık bölgelerini kaydedin.</p></div>')
+    form_col, body_col = st.columns([1, 1], gap="large")
+    with form_col:
+        first_name = st.text_input("Ad", placeholder="Emre")
+        last_name = st.text_input("Soyad", placeholder="Demir")
+        position = st.selectbox("Mevki", ["Kaleci", "Stoper", "Bek", "Defansif Orta Saha", "Merkez Orta Saha", "Kanat", "10 Numara", "Santrafor"])
+        age = st.number_input("Yaş", min_value=15, max_value=50, value=23)
+        previous_injuries = st.text_area("Geçmiş sakatlıklar", placeholder="Örn. 2024 sağ diz bağ zorlanması")
+        injury_note = st.text_area("Seçili bölgeler için açıklama", placeholder="Sakatlığın türü, tarihi ve mevcut durumu")
+
+    with body_col:
+        rotation = st.slider("3D modeli döndür", 0, 360, 0, 15)
+        selected_zones = st.session_state.setdefault("injury_zones", [])
+        dots = ""
+        if "Omuz" in selected_zones:
+            dots += '<span class="injury-dot injury-shoulder"></span>'
+        if "Diz" in selected_zones:
+            dots += '<span class="injury-dot injury-knee"></span>'
+        if "Ayak bileği" in selected_zones:
+            dots += '<span class="injury-dot injury-ankle"></span>'
+        html(f'''<div class="body-stage"><div class="body-model" style="transform:rotateY({rotation}deg)"><div class="mesh-part mesh-head"></div><div class="mesh-part mesh-torso"></div><div class="mesh-part mesh-arm left"></div><div class="mesh-part mesh-arm right"></div><div class="mesh-part mesh-leg left"></div><div class="mesh-part mesh-leg right"></div>{dots}</div></div>''')
+        z1, z2, z3 = st.columns(3)
+        for col, zone in [(z1, "Omuz"), (z2, "Diz"), (z3, "Ayak bileği")]:
+            with col:
+                if st.button(zone, key=f"zone_{zone}", use_container_width=True):
+                    if zone in selected_zones:
+                        selected_zones.remove(zone)
+                    else:
+                        selected_zones.append(zone)
+                    st.rerun()
+        st.caption("Seçilen bölgeler model üzerinde kırmızı görünür. Modeli slider ile 360° döndürebilirsiniz.")
+
+    if st.button("Oyuncuyu Kaydet ve Ankete Geç →", key="save_player", use_container_width=True):
+        full_name = f"{first_name.strip()} {last_name.strip()}".strip() or "Yeni Oyuncu"
+        st.session_state.selected_player = {
+            "number": "—", "name": full_name, "position": position,
+            "age": age, "injuries": previous_injuries, "injury_note": injury_note,
+            "motivation": 0, "energy": 0, "sleep": 0, "readiness": 0,
+            "stress": 0, "fatigue": 0, "status": "Anket Bekleniyor", "portrait_index": 0,
+        }
+        st.session_state.survey_step = 0
+        st.session_state.survey_answers = {}
+        navigate("survey")
+
+
+def show_survey():
+    categories = list(SURVEY.keys())
+    step = st.session_state.setdefault("survey_step", 0)
+    answers = st.session_state.setdefault("survey_answers", {})
+    category = categories[step]
+
+    logo, title, exit_col = st.columns([1.2, 2.8, 1], vertical_alignment="center")
+    with logo:
+        brand()
+    with title:
+        html(f'<div style="color:#8fa1b7;font-size:13px">OYUNCU ANKETİ · {step + 1}/6</div>')
+    with exit_col:
+        st.button("Kaydet ve Çık", key="survey_exit", use_container_width=True, on_click=set_page, args=("dashboard",))
+
+    progress_parts = "".join(
+        f'<div class="step-item {"done" if i < step else "active" if i == step else ""}"></div>'
+        for i in range(6)
+    )
+    html(f'<div class="step-track">{progress_parts}</div><div class="survey-head"><div class="eyebrow">{category.upper()}</div><h1>{category} değerlendirmesi</h1><p>Her ifade için son 7 gündeki durumunuzu en iyi anlatan seçeneği işaretleyin.</p></div>')
+
+    def save_answer_and_advance(widget_key, answer_key, current_step):
+        selected_answer = st.session_state.get(widget_key)
+        if selected_answer:
+            answers[answer_key] = int(selected_answer[0])
+        current_category = categories[current_step]
+        category_complete = all(f"{current_category}_{i}" in answers for i in range(1, 11))
+        if category_complete and current_step < 5:
+            st.session_state.survey_step = current_step + 1
+
+    for index, question in enumerate(SURVEY[category], start=1):
+        key = f"survey_{step}_{index}"
+        answer_key = f"{category}_{index}"
+        html(f'<div class="question-card"><b style="color:#f1f5f9">{index}. {question}</b></div>')
+        answer = st.radio(
+            "Yanıt", ANSWER_OPTIONS, index=None, key=key, horizontal=True,
+            label_visibility="collapsed", on_change=save_answer_and_advance,
+            args=(key, answer_key, step),
+        )
+        if answer:
+            answers[answer_key] = int(answer[0])
+
+    completed = all(f"{category}_{i}" in answers for i in range(1, 11))
+    back_col, info_col, next_col = st.columns([1, 2, 1])
+    with back_col:
+        if step > 0 and st.button("← Önceki kategori", use_container_width=True):
+            st.session_state.survey_step -= 1
+            st.rerun()
+    with info_col:
+        answered_count = sum(1 for i in range(1, 11) if f"{category}_{i}" in answers)
+        st.progress(answered_count / 10, text=f"Bu kategoride {answered_count}/10 soru tamamlandı")
+    with next_col:
+        if step < 5:
+            if st.button("Sonraki kategori →", disabled=not completed, use_container_width=True):
+                st.session_state.survey_step += 1
+                st.rerun()
+        elif st.button("Anketi Bitir", disabled=not completed, use_container_width=True):
+            scores = {}
+            for cat in categories:
+                values = [answers[f"{cat}_{i}"] for i in range(1, 11)]
+                # Stres kategorisindeki son ifade olumlu kurulduğu için ters puanlanır.
+                if cat == "Stres":
+                    values[-1] = 6 - values[-1]
+                scores[cat] = round(sum(values) / len(values) * 20)
+            player = st.session_state.selected_player
+            player.update({
+                "stress": scores["Stres"], "motivation": scores["Motivasyon"],
+                "energy": scores["Enerji"], "fatigue": scores["Yorgunluk"],
+                "sleep": scores["Uyku"], "readiness": scores["Hazırlık"],
+                "status": "Takip Edilmeli" if scores["Stres"] >= 70 or scores["Yorgunluk"] >= 70 else "Dengeli",
+            })
+            navigate("player_profile")
 
 
 if st.session_state.page == "landing":
@@ -825,5 +1094,9 @@ elif st.session_state.page == "demo_login":
     show_demo_login()
 elif st.session_state.page == "player_profile":
     show_player_profile()
+elif st.session_state.page == "new_player":
+    show_new_player()
+elif st.session_state.page == "survey":
+    show_survey()
 else:
     show_dashboard()
