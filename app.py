@@ -49,6 +49,7 @@ def asset_data_uri(filename):
 HERO_IMAGE = asset_data_uri("hero-footballer.png")
 PORTRAIT_SHEET = asset_data_uri("player-portraits.png")
 HEATMAP_IMAGE = asset_data_uri("emotional-heatmap-base.png")
+BODY_MAP_IMAGE = asset_data_uri("scientific-body-map.png")
 
 SURVEY = {
     "Stres": [
@@ -451,6 +452,11 @@ html(
     .anatomy-view { position:absolute; right:14px; top:14px; z-index:3; padding:6px 9px; border:1px solid rgba(255,255,255,.12); border-radius:8px; background:rgba(5,12,22,.66); color:#9cabc0; font-size:10px; letter-spacing:.08em; }
     .anatomy-ground { position:absolute; left:22%; right:22%; bottom:13px; height:22px; border-radius:50%; background:radial-gradient(ellipse,rgba(0,0,0,.48),transparent 68%); }
     .body-hit { filter:drop-shadow(0 0 7px rgba(255,54,91,.92)); }
+    .scientific-map { position:relative; width:100%; aspect-ratio:1/1; overflow:hidden; border:1px solid rgba(53,230,197,.20); border-radius:18px; background:radial-gradient(circle at 50% 40%,rgba(26,72,91,.32),transparent 56%),#050b13; }
+    .scientific-map img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block; }
+    .map-marker { position:absolute; width:17px; height:17px; margin:-8.5px 0 0 -8.5px; border-radius:50%; background:#ff365b; border:2px solid #ffd7de; box-shadow:0 0 0 9px rgba(255,54,91,.18),0 0 18px rgba(255,54,91,.95); z-index:3; }
+    .map-marker:after { content:""; position:absolute; inset:4px; border-radius:50%; background:#fff; opacity:.75; }
+    .map-caption { display:flex; justify-content:space-around; margin-top:8px; color:#7f91a8; font-size:10px; letter-spacing:.12em; }
     .body-model { position:relative; width:180px; height:360px; transform-style:preserve-3d; transition:transform .35s ease; filter:drop-shadow(0 18px 28px rgba(0,0,0,.35)); }
     .mesh-part { position:absolute; left:50%; transform:translateX(-50%); border:1px solid rgba(150,205,220,.62); background:repeating-linear-gradient(45deg,rgba(57,229,140,.08) 0 2px,rgba(155,108,255,.13) 2px 5px); box-shadow:inset 0 0 18px rgba(76,201,240,.08); }
     .mesh-head { top:5px; width:54px; height:65px; border-radius:45%; }
@@ -1137,6 +1143,28 @@ def render_anatomy_model(selected_zones, rotation):
     </div>'''
 
 
+def render_scientific_body_map(selected_zones):
+    """Render a stable front/back PNG map and overlay every selected injury."""
+    back_terms = ("Sırt", "hamstring", "aşil")
+    markers = []
+    for zone in selected_zones:
+        x3d, _, z3d = INJURY_ZONES[zone]
+        is_back = any(term.lower() in zone.lower() for term in back_terms)
+        center_x = 74.5 if is_back else 25.5
+        left = center_x + x3d * 10.8
+        top = 5.2 + (3.8 - z3d) * 14.25
+        markers.append(
+            f'<span class="map-marker" style="left:{left:.1f}%;top:{top:.1f}%" title="{zone}" aria-label="{zone}"></span>'
+        )
+    return f'''
+    <div class="scientific-map">
+        <img src="{BODY_MAP_IMAGE}" alt="Ön ve arka görünüşlü bilimsel insan vücut haritası">
+        {''.join(markers)}
+    </div>
+    <div class="map-caption"><span>ÖN GÖRÜNÜM</span><span>ARKA GÖRÜNÜM</span></div>
+    '''
+
+
 def show_new_player():
     logo, title, back = st.columns([1.2, 2.8, 1], vertical_alignment="center")
     with logo:
@@ -1171,13 +1199,8 @@ def show_new_player():
         st.session_state.injury_zones = list(selected_zones)
         if selected_zones:
             st.caption(f"{len(selected_zones)} bölge seçildi: " + " · ".join(selected_zones))
-        model_rotation = st.slider(
-            "Modeli 360° döndür",
-            min_value=0, max_value=360, value=0, step=15,
-            key="injury_model_rotation",
-        )
-        html(render_anatomy_model(selected_zones, model_rotation))
-        html('<div class="injury-soft-note"><b>Model kullanımı:</b> Üstteki kontrolü çekerek modeli 0–360° döndürün. Seçtiğiniz tüm bölgeler model üzerinde kırmızı işaretlerle gösterilir.</div>')
+        html(render_scientific_body_map(selected_zones))
+        html('<div class="injury-soft-note"><b>Vücut haritası:</b> Ön bölge sakatlıkları soldaki, sırt–hamstring–aşil bölgeleri sağdaki görünüm üzerinde işaretlenir. Birden fazla seçim aynı anda kırmızı noktalarla gösterilir.</div>')
 
     injury_records = st.session_state.setdefault("injury_records", [])
     if st.button("＋ Daha Fazla Sakatlık Ekle", key="add_injury_record", use_container_width=True):
