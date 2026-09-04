@@ -47,6 +47,15 @@ def asset_data_uri(filename):
     return f"data:{mime};base64,{encoded}"
 
 
+def uploaded_file_data_uri(uploaded_file):
+    """Convert a Streamlit upload to an in-session image source for this demo."""
+    if uploaded_file is None:
+        return ""
+    mime = uploaded_file.type or "image/jpeg"
+    encoded = base64.b64encode(uploaded_file.getvalue()).decode("ascii")
+    return f"data:{mime};base64,{encoded}"
+
+
 HERO_IMAGE = asset_data_uri("hero-footballer.png")
 PORTRAIT_SHEET = asset_data_uri("player-portraits.png")
 HEATMAP_IMAGE = asset_data_uri("emotional-heatmap-base.png")
@@ -568,9 +577,20 @@ html(
     .profile-meta { color:#91a3b8; font-size:13px; margin-top:6px; }
     .profile-number { color:#a984ff; font-size:54px; font-weight:900; float:right; line-height:1; }
     .profile-grid { display:grid; grid-template-columns:.92fr 1.08fr; gap:15px; margin-top:17px; }
+    .profile-upload-preview { width:118px; height:132px; border-radius:15px; object-fit:cover; object-position:center top; border:1px solid rgba(255,255,255,.14); background:#0a1727; }
+    .media-preview { position:relative; min-height:360px; border-radius:14px; overflow:hidden; border:1px solid rgba(255,255,255,.11); background:#081523 center/cover no-repeat; }
+    .media-preview.heat:after { content:""; position:absolute; inset:0; background:radial-gradient(circle at 52% 25%,rgba(255,32,67,.92) 0 5%,rgba(255,143,34,.67) 10%,rgba(255,232,74,.25) 17%,transparent 25%),radial-gradient(circle at 48% 50%,rgba(255,43,72,.88) 0 6%,rgba(255,154,33,.58) 12%,rgba(57,229,140,.18) 23%,transparent 32%),radial-gradient(circle at 43% 74%,rgba(255,54,82,.75) 0 4%,rgba(255,181,40,.42) 10%,transparent 21%); mix-blend-mode:screen; }
+    .media-tag { position:absolute; z-index:2; left:12px; top:12px; padding:7px 9px; border-radius:8px; color:#fff; font-size:10px; background:rgba(5,13,24,.78); border:1px solid rgba(255,255,255,.13); }
+    .timeline-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px; }
+    .timeline-card { overflow:hidden; border:1px solid rgba(255,255,255,.1); border-radius:14px; background:rgba(15,31,51,.72); }
+    .timeline-thumb { height:145px; background-position:center; background-size:cover; position:relative; }
+    .timeline-body { padding:12px; }
+    .timeline-body b { color:#f2f5f9; font-size:12px; display:block; }
+    .timeline-body span { color:#8fa1b7; font-size:10px; line-height:1.5; }
+    .upload-empty { padding:38px 20px; text-align:center; border:1px dashed rgba(155,108,255,.34); border-radius:16px; background:rgba(155,108,255,.035); color:#8fa1b7; }
 
     @media (max-width:900px) {
-        .analytics-grid, .profile-grid { grid-template-columns:1fr; }
+        .analytics-grid, .profile-grid, .timeline-grid { grid-template-columns:1fr; }
         .profile-head { grid-template-columns:1fr; }
     }
 
@@ -1013,9 +1033,12 @@ def show_player_profile():
             args=("dashboard",),
         )
 
+    profile_photo = player.get("profile_photo", "")
+    photo_class = "profile-photo" if profile_photo else f"profile-photo portrait-{player['portrait_index']}"
+    photo_style = f'background-image:url("{profile_photo}");background-size:cover;background-position:center top;' if profile_photo else ""
     html(f"""
     <div class="profile-head" style="margin-top:26px">
-        <div class="profile-photo portrait-{player['portrait_index']}"></div>
+        <div class="{photo_class}" style='{photo_style}'></div>
         <div>
             <div class="profile-number">{player['number']}</div>
             <div class="eyebrow">{player['status']}</div>
@@ -1024,7 +1047,27 @@ def show_player_profile():
         </div>
     </div>
     """)
+    action_left, action_mid, action_space = st.columns([1.25, 1.55, 2.2])
+    with action_left:
+        if st.button("＋ Yeni Değerlendirme", key="new_assessment", use_container_width=True):
+            st.session_state.survey_step = 0
+            st.session_state.survey_answers = {}
+            navigate("survey")
+    with action_mid:
+        if st.button("▣ Fotoğraf / Görsel Yükle", key="upload_match_photo", use_container_width=True):
+            navigate("visual_upload")
     render_player_analysis(player)
+
+    records = [record for record in st.session_state.get("visual_records", []) if record.get("player") == player["name"]]
+    html('<div style="margin:28px 0 8px"><div class="eyebrow">GÖRSEL ANALİZ GEÇMİŞİ</div><h2 style="font-size:24px;margin:10px 0 4px">Maç ve Antrenman Zaman Çizelgesi</h2><p>Oyuncuya ait görsel değerlendirmeler kronolojik olarak burada tutulur.</p></div>')
+    if records:
+        cards = "".join(
+            f'''<div class="timeline-card"><div class="timeline-thumb" style="background-image:url('{record['image']}')"><span class="media-tag">{record['type']}</span></div><div class="timeline-body"><b>{record['date']} · {record['context']}</b><span>Duygusal yük: {record['load']} · Hazırlık sinyali: {record['readiness']}<br>{record['note'] or 'Uzman notu eklenmedi.'}</span></div></div>'''
+            for record in reversed(records[-6:])
+        )
+        html(f'<div class="timeline-grid">{cards}</div>')
+    else:
+        html('<div class="upload-empty">Henüz maç veya antrenman görseli eklenmedi.<br><span style="font-size:11px">İlk değerlendirmeyi başlatmak için “Fotoğraf / Görsel Yükle” butonunu kullanın.</span></div>')
 
 
 INJURY_ZONES = {
@@ -1214,6 +1257,14 @@ def show_new_player():
     html('<div class="survey-head"><div class="eyebrow">OYUNCU PROFİLİ</div><h1>Yeni oyuncu oluşturun</h1><p>Temel oyuncu bilgilerini ve geçmiş sakatlık bölgelerini kaydedin.</p></div>')
     form_col, body_col = st.columns([1, 1], gap="large")
     with form_col:
+        profile_upload = st.file_uploader(
+            "Oyuncu profil fotoğrafı (opsiyonel)",
+            type=["jpg", "jpeg", "png"],
+            key="new_player_profile_photo",
+            help="Bu fotoğraf yalnızca oyuncu kartı ve profil başlığında kullanılır.",
+        )
+        if profile_upload:
+            st.image(profile_upload, width=140, caption="Profil fotoğrafı ön izlemesi")
         first_name = st.text_input("Ad", placeholder="Emre")
         last_name = st.text_input("Soyad", placeholder="Demir")
         position = st.selectbox("Mevki", ["Kaleci", "Stoper", "Bek", "Defansif Orta Saha", "Merkez Orta Saha", "Kanat", "10 Numara", "Santrafor"])
@@ -1261,17 +1312,86 @@ def show_new_player():
 
     if st.button("Oyuncuyu Kaydet ve Ankete Geç →", key="save_player", use_container_width=True):
         full_name = f"{first_name.strip()} {last_name.strip()}".strip() or "Yeni Oyuncu"
+        profile_photo = uploaded_file_data_uri(profile_upload)
         st.session_state.selected_player = {
             "number": "—", "name": full_name, "position": position,
             "age": age, "injuries": previous_injuries, "injury_note": injury_note,
             "injury_zones": selected_zones,
             "injury_records": injury_records,
+            "profile_photo": profile_photo,
             "motivation": 0, "energy": 0, "sleep": 0, "readiness": 0,
             "stress": 0, "fatigue": 0, "status": "Anket Bekleniyor", "portrait_index": 0,
         }
         st.session_state.survey_step = 0
         st.session_state.survey_answers = {}
         navigate("survey")
+
+
+def show_visual_upload():
+    player = st.session_state.get("selected_player", {"name": "Emre Demir"})
+    logo, title, back = st.columns([1.2, 2.8, 1], vertical_alignment="center")
+    with logo:
+        brand()
+    with title:
+        html('<div style="color:#8fa1b7;font-size:13px">YENİ GÖRSEL DEĞERLENDİRME</div>')
+    with back:
+        st.button("← Oyuncu Profili", key="visual_upload_back", use_container_width=True, on_click=set_page, args=("player_profile",))
+
+    html(f'<div class="survey-head"><div class="eyebrow">{player["name"].upper()}</div><h1>Maç veya antrenman görseli ekleyin</h1><p>Görselin bağlamını tanımlayın, ön izlemesini kontrol edin ve demo analizini başlatın.</p></div>')
+    form_col, preview_col = st.columns([.9, 1.1], gap="large")
+    with form_col:
+        visual_type = st.selectbox("Görsel türü", ["Maç", "Antrenman", "Rehabilitasyon", "Diğer"], key="visual_type")
+        visual_date = st.date_input("Tarih", value=date.today(), format="DD.MM.YYYY", key="visual_date")
+        context = st.text_input("Maç / antrenman bağlamı", placeholder="Örn. Demo FC - Rakip FC veya Dayanıklılık antrenmanı", key="visual_context")
+        minute = st.number_input("Dakika / antrenman süresi", min_value=0, max_value=180, value=45, key="visual_minute")
+        note = st.text_area("Uzman notu", placeholder="Görselin çekildiği an veya oyuncunun durumu hakkında kısa not", key="visual_note")
+        upload_permission = st.checkbox("Bu görseli kulüp adına yükleme ve değerlendirme yetkim olduğunu onaylıyorum.", key="visual_permission")
+    with preview_col:
+        visual_file = st.file_uploader("JPG veya PNG görsel yükleyin", type=["jpg", "jpeg", "png"], key="assessment_visual")
+        visual_uri = uploaded_file_data_uri(visual_file)
+        if visual_uri:
+            html(f'<div class="media-preview" style="background-image:url(\'{visual_uri}\')"><span class="media-tag">ÖN İZLEME · {visual_type.upper()}</span></div>')
+        else:
+            html('<div class="upload-empty" style="min-height:320px;display:grid;place-items:center"><div><b style="color:#eef2f7">Görsel ön izlemesi</b><br>Dosya seçtiğinizde burada görüntülenecek.</div></div>')
+
+    if st.button("Görseli Analiz Et →", key="run_visual_analysis", use_container_width=True, disabled=not (visual_uri and upload_permission)):
+        record = {
+            "player": player["name"], "image": visual_uri, "type": visual_type,
+            "date": visual_date.strftime("%d.%m.%Y"),
+            "context": context.strip() or f"{visual_type} değerlendirmesi",
+            "minute": minute, "note": note.strip(), "load": 64,
+            "readiness": 72, "focus": 78, "stress": 41,
+        }
+        st.session_state.setdefault("visual_records", []).append(record)
+        st.session_state.current_visual_result = record
+        navigate("visual_result")
+
+
+def show_visual_result():
+    record = st.session_state.get("current_visual_result")
+    if not record:
+        navigate("player_profile")
+        return
+    logo, title, back = st.columns([1.2, 2.8, 1], vertical_alignment="center")
+    with logo:
+        brand()
+    with title:
+        html('<div style="color:#8fa1b7;font-size:13px">GÖRSEL ANALİZ SONUCU</div>')
+    with back:
+        st.button("← Oyuncu Profili", key="visual_result_back", use_container_width=True, on_click=set_page, args=("player_profile",))
+
+    html(f'<div class="survey-head"><div class="eyebrow">{record["type"].upper()} · {record["date"]}</div><h1>{record["context"]}</h1><p>Görsel sinyalleri, oyuncunun öz bildirimi ve uzman değerlendirmesiyle birlikte ele alınmalıdır.</p></div>')
+    original, heat = st.columns(2, gap="medium")
+    with original:
+        html(f'<div class="glass-card"><div class="glass-title"><b>Orijinal Görsel</b><span>{record["minute"]}. DAKİKA</span></div><div class="media-preview" style="background-image:url(\'{record["image"]}\')"><span class="media-tag">ORİJİNAL</span></div></div>')
+    with heat:
+        html(f'<div class="glass-card"><div class="glass-title"><b>Duygusal Yük Haritası</b><span>DEMO ÇIKTISI</span></div><div class="media-preview heat" style="background-image:url(\'{record["image"]}\')"><span class="media-tag">AI ISI HARİTASI</span></div></div>')
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Duygusal Yük", record["load"])
+    c2.metric("Hazırlık", record["readiness"])
+    c3.metric("Odak", record["focus"])
+    c4.metric("Stres Sinyali", record["stress"])
+    html(f'<div class="glass-card" style="margin-top:14px"><div class="glass-title"><b>Uzman Değerlendirme Notu</b><span>TEŞHİS DEĞİLDİR</span></div><p style="margin:0;line-height:1.7">{record["note"] or "Görselde orta düzey duygusal yük sinyali görülmektedir. Sonuç, anket değerleri ve teknik ekip gözlemleriyle birlikte değerlendirilmelidir."}</p></div>')
 
 
 def show_survey():
@@ -1355,6 +1475,10 @@ elif st.session_state.page == "player_profile":
     show_player_profile()
 elif st.session_state.page == "new_player":
     show_new_player()
+elif st.session_state.page == "visual_upload":
+    show_visual_upload()
+elif st.session_state.page == "visual_result":
+    show_visual_result()
 elif st.session_state.page == "survey":
     show_survey()
 else:
