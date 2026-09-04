@@ -294,10 +294,17 @@ html(
         will-change:transform;
     }
     .product-stage .hero-footballer:after {
-        content:""; position:absolute; z-index:2; left:-15%; right:-15%; top:-18%; height:18%;
-        background:linear-gradient(180deg,transparent,rgba(57,229,140,.12),rgba(155,108,255,.08),transparent);
-        filter:blur(3px); animation:analysisScan 6.5s ease-in-out infinite; pointer-events:none;
+        content:""; position:absolute; z-index:2; left:-12%; right:-12%; top:-16%; height:15%;
+        background:linear-gradient(180deg,transparent 0%,rgba(57,229,140,.20) 32%,rgba(86,255,220,.72) 48%,rgba(155,108,255,.28) 57%,transparent 100%);
+        border-bottom:1px solid rgba(102,255,226,.78); box-shadow:0 10px 25px rgba(57,229,140,.22);
+        filter:blur(.2px); animation:analysisScan 5.8s cubic-bezier(.42,0,.35,1) infinite; pointer-events:none;
     }
+    .analysis-grid-overlay { position:absolute; inset:0; z-index:1; opacity:0; pointer-events:none; background-image:linear-gradient(rgba(53,230,197,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(53,230,197,.12) 1px,transparent 1px); background-size:34px 34px; -webkit-mask-image:linear-gradient(180deg,transparent 5%,#000 28%,#000 76%,transparent 100%); mask-image:linear-gradient(180deg,transparent 5%,#000 28%,#000 76%,transparent 100%); animation:gridReveal 5.8s ease-in-out infinite; }
+    .hero-heat { position:absolute; z-index:2; width:112px; height:112px; margin:-56px 0 0 -56px; border-radius:50%; opacity:0; pointer-events:none; mix-blend-mode:screen; background:radial-gradient(circle,rgba(255,39,69,.96) 0 9%,rgba(255,126,31,.78) 17%,rgba(255,226,65,.42) 29%,rgba(57,229,140,.14) 47%,transparent 68%); filter:blur(1px); animation:heatReveal 5.8s ease-in-out infinite; }
+    .heat-head { left:50%; top:24%; animation-delay:.35s; }
+    .heat-chest { left:50%; top:43%; width:138px; height:138px; margin:-69px 0 0 -69px; animation-delay:.7s; }
+    .heat-knee { left:44%; top:68%; width:104px; height:104px; margin:-52px 0 0 -52px; animation-delay:1.05s; }
+    .heat-ball { left:47%; top:85%; width:90px; height:90px; margin:-45px 0 0 -45px; animation-delay:1.35s; }
     .hero-caption {
         position:absolute; left:15px; bottom:15px; z-index:3; color:#fff; font-size:11px;
         padding:9px 11px; border-radius:10px; border:1px solid rgba(255,255,255,.13);
@@ -387,12 +394,15 @@ html(
     }
 
     @keyframes cinematicZoom { from { transform:scale(1.005); } to { transform:scale(1.035); } }
-    @keyframes analysisScan { 0%,12% { transform:translateY(-35%); opacity:0; } 24% { opacity:.8; } 68% { opacity:.42; } 82%,100% { transform:translateY(650%); opacity:0; } }
+    @keyframes analysisScan { 0%,8% { transform:translateY(-45%); opacity:0; } 15% { opacity:1; } 72% { opacity:.92; } 84%,100% { transform:translateY(760%); opacity:0; } }
+    @keyframes gridReveal { 0%,12%,100% { opacity:0; } 25%,68% { opacity:.38; } 84% { opacity:.08; } }
+    @keyframes heatReveal { 0%,24%,100% { opacity:0; transform:scale(.55); } 38% { opacity:.92; transform:scale(1); } 66% { opacity:.72; transform:scale(1.08); } 83% { opacity:0; transform:scale(1.16); } }
     @keyframes radarBreathe { 0%,100% { transform:translate(-50%,-50%) scale(.97); opacity:.78; } 50% { transform:translate(-50%,-50%) scale(1.035); opacity:1; filter:drop-shadow(0 0 14px rgba(155,108,255,.46)); } }
     @keyframes centerPulse { 0%,100% { transform:translate(-50%,-50%) scale(1); box-shadow:0 0 0 0 rgba(57,229,140,.36); } 50% { transform:translate(-50%,-50%) scale(1.3); box-shadow:0 0 0 8px rgba(57,229,140,0); } }
     @keyframes livePulse { 0%,100% { opacity:.65; box-shadow:0 0 5px var(--green); } 50% { opacity:1; box-shadow:0 0 16px var(--green); } }
     @media (prefers-reduced-motion: reduce) {
-        .product-stage .hero-footballer:before,.product-stage .hero-footballer:after,.product-stage .radar-fill,.product-stage .radar-center,.live-dot { animation:none!important; }
+        .product-stage .hero-footballer:before,.product-stage .hero-footballer:after,.product-stage .radar-fill,.product-stage .radar-center,.live-dot,.analysis-grid-overlay,.hero-heat { animation:none!important; }
+        .analysis-grid-overlay,.hero-heat,.product-stage .hero-footballer:after { display:none!important; }
         .product-stage,.visual-card,.score { transition:none!important; }
     }
 
@@ -661,6 +671,11 @@ def show_landing_page():
                         <small>Kırmızı-Beyaz Takım</small>
                     </div>
                     <div class="hero-footballer">
+                        <div class="analysis-grid-overlay"></div>
+                        <span class="hero-heat heat-head"></span>
+                        <span class="hero-heat heat-chest"></span>
+                        <span class="hero-heat heat-knee"></span>
+                        <span class="hero-heat heat-ball"></span>
                         <div class="hero-caption">Maç içi mücadele · 78. dakika</div>
                     </div>
                 </div>
