@@ -262,7 +262,9 @@ html(
         background:linear-gradient(145deg, rgba(19,36,58,.97), rgba(9,23,39,.98));
         box-shadow:0 35px 100px rgba(0,0,0,.42);
         overflow:hidden;
+        transition:transform .32s ease, border-color .32s ease, box-shadow .32s ease;
     }
+    .product-stage:hover { transform:translateY(-4px); border-color:rgba(155,108,255,.32); box-shadow:0 42px 115px rgba(0,0,0,.48),0 0 45px rgba(125,82,238,.09); }
     .product-stage:before {
         content:""; position:absolute; width:320px; height:320px; left:35%; top:-210px;
         background:rgba(155,108,255,.3); filter:blur(90px); border-radius:50%;
@@ -272,19 +274,29 @@ html(
         padding:2px 3px 15px; border-bottom:1px solid var(--border);
         color:#8fa1b7; font-size:11px; letter-spacing:.35px;
     }
-    .live-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 12px var(--green); margin-right:7px; }
+    .live-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 12px var(--green); margin-right:7px; animation:livePulse 2.4s ease-in-out infinite; }
     .stage-grid { position:relative; display:grid; grid-template-columns:1.25fr .75fr; gap:14px; margin-top:14px; }
 
-    .visual-card { border:1px solid var(--border); border-radius:16px; background:#0a1727; overflow:hidden; }
+    .visual-card { border:1px solid var(--border); border-radius:16px; background:#0a1727; overflow:hidden; transition:border-color .28s ease, box-shadow .28s ease, transform .28s ease; }
+    .product-stage .visual-card:hover { border-color:rgba(57,229,140,.28); box-shadow:0 18px 38px rgba(0,0,0,.26); transform:translateY(-2px); }
     .card-head { display:flex; justify-content:space-between; align-items:center; padding:13px 15px; color:#e7edf5; font-size:12px; font-weight:700; }
     .card-head small { color:#8396ac; font-weight:500; }
 
     .hero-footballer {
         position:relative; min-height:390px;
-        background:
-            linear-gradient(90deg, rgba(5,14,25,.05), rgba(5,14,25,.08) 55%, rgba(5,14,25,.72)),
-            url('__HERO_IMAGE__') center/cover;
+        background:url('__HERO_IMAGE__') center center/cover no-repeat;
         overflow:hidden;
+    }
+    .product-stage .hero-footballer:before {
+        content:""; position:absolute; inset:-2.5%; z-index:0;
+        background:url('__HERO_IMAGE__') center center/cover no-repeat;
+        animation:cinematicZoom 14s ease-in-out infinite alternate;
+        will-change:transform;
+    }
+    .product-stage .hero-footballer:after {
+        content:""; position:absolute; z-index:2; left:-15%; right:-15%; top:-18%; height:18%;
+        background:linear-gradient(180deg,transparent,rgba(57,229,140,.12),rgba(155,108,255,.08),transparent);
+        filter:blur(3px); animation:analysisScan 6.5s ease-in-out infinite; pointer-events:none;
     }
     .hero-caption {
         position:absolute; left:15px; bottom:15px; z-index:3; color:#fff; font-size:11px;
@@ -330,6 +342,8 @@ html(
 
     .score-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; padding:0 10px 10px; }
     .score { background:#102036; border:1px solid var(--border); border-radius:10px; padding:8px 9px; }
+    .product-stage .score { transition:transform .22s ease, background .22s ease, border-color .22s ease; cursor:default; }
+    .product-stage .score:hover { transform:translateY(-3px) scale(1.025); background:#152943; border-color:rgba(155,108,255,.34); }
     .score span { display:block; color:#8194aa; font-size:7px; text-transform:uppercase; letter-spacing:.45px; white-space:nowrap; }
     .score b { display:block; color:#fff; font-size:17px; line-height:1.1; margin-top:4px; }
     .score.green b { color:var(--green); }
@@ -357,7 +371,9 @@ html(
         background:linear-gradient(145deg,rgba(57,229,140,.5),rgba(155,108,255,.58));
         border:none; filter:drop-shadow(0 0 8px rgba(155,108,255,.28));
     }
+    .product-stage .radar-fill { animation:radarBreathe 4s ease-in-out infinite; }
     .radar-center { position:absolute; left:50%; top:50%; width:5px; height:5px; border-radius:50%; background:#fff; transform:translate(-50%,-50%); }
+    .product-stage .radar-center { animation:centerPulse 2.2s ease-in-out infinite; }
     .radar-label-css { position:absolute; color:#95a7bb; font-size:8px; font-weight:750; letter-spacing:.3px; }
     .rl-top { top:5px; left:50%; transform:translateX(-50%); }
     .rl-ur { top:52px; right:0; }
@@ -368,6 +384,16 @@ html(
     .alert {
         margin:0 12px 12px; border-left:3px solid var(--yellow); border-radius:9px;
         background:rgba(247,198,91,.07); color:#dbe4ee; padding:11px; font-size:11px; line-height:1.5;
+    }
+
+    @keyframes cinematicZoom { from { transform:scale(1.005); } to { transform:scale(1.035); } }
+    @keyframes analysisScan { 0%,12% { transform:translateY(-35%); opacity:0; } 24% { opacity:.8; } 68% { opacity:.42; } 82%,100% { transform:translateY(650%); opacity:0; } }
+    @keyframes radarBreathe { 0%,100% { transform:translate(-50%,-50%) scale(.97); opacity:.78; } 50% { transform:translate(-50%,-50%) scale(1.035); opacity:1; filter:drop-shadow(0 0 14px rgba(155,108,255,.46)); } }
+    @keyframes centerPulse { 0%,100% { transform:translate(-50%,-50%) scale(1); box-shadow:0 0 0 0 rgba(57,229,140,.36); } 50% { transform:translate(-50%,-50%) scale(1.3); box-shadow:0 0 0 8px rgba(57,229,140,0); } }
+    @keyframes livePulse { 0%,100% { opacity:.65; box-shadow:0 0 5px var(--green); } 50% { opacity:1; box-shadow:0 0 16px var(--green); } }
+    @media (prefers-reduced-motion: reduce) {
+        .product-stage .hero-footballer:before,.product-stage .hero-footballer:after,.product-stage .radar-fill,.product-stage .radar-center,.live-dot { animation:none!important; }
+        .product-stage,.visual-card,.score { transition:none!important; }
     }
 
     .section { margin-top:86px; text-align:center; }
