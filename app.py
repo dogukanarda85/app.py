@@ -291,13 +291,16 @@ html(
     .contact-intro { padding:28px; border-radius:20px; background:linear-gradient(145deg,rgba(155,108,255,.15),rgba(57,229,140,.06)); border:1px solid rgba(155,108,255,.25); }
     .contact-intro h2 { color:#fff; margin:8px 0 12px; }
     .contact-intro p { color:#9fb0c2; line-height:1.7; }
+    .st-key-contact_submit button,
     .st-key-contact_form div[data-testid="stFormSubmitButton"] button {
         background:linear-gradient(135deg,#9b6cff,#6f4be8) !important;
         border:1px solid #9b6cff !important; color:#fff !important;
         box-shadow:0 12px 30px rgba(111,75,232,.28) !important;
     }
+    .st-key-contact_submit button p, .st-key-contact_submit button span,
     .st-key-contact_form div[data-testid="stFormSubmitButton"] button p,
     .st-key-contact_form div[data-testid="stFormSubmitButton"] button span { color:#fff !important; }
+    .st-key-contact_submit button:hover,
     .st-key-contact_form div[data-testid="stFormSubmitButton"] button:hover {
         background:linear-gradient(135deg,#ad85ff,#805df0) !important; border-color:#b697ff !important;
     }
@@ -851,7 +854,11 @@ def show_contact_page():
             email = st.text_input("Kurumsal e-posta *", placeholder="ad.soyad@kulup.com")
             message = st.text_area("Mesaj *", placeholder="Menteleven ile ilgili ihtiyacınızı kısaca paylaşın.", height=150)
             consent = st.checkbox("KVKK Aydınlatma Metni'ni okudum; iletişim talebim kapsamında kişisel verilerimin işlenmesini kabul ediyorum. *")
-            submitted = st.form_submit_button("Mesajı Gönder →", type="primary", use_container_width=True)
+            submitted = st.form_submit_button(
+                "Mesajı Gönder →",
+                key="contact_submit",
+                use_container_width=True,
+            )
         if submitted:
             missing = not all([name.strip(), organisation.strip(), title.strip(), phone.strip(), email.strip(), message.strip()])
             corporate_email = "@" in email and "." in email.split("@")[-1]
