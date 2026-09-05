@@ -18,6 +18,11 @@ st.set_page_config(
 if "page" not in st.session_state:
     st.session_state.page = "landing"
 
+PUBLIC_ROUTES = {"landing", "product", "how_it_works", "analyses", "security", "contact"}
+query_page = st.query_params.get("page")
+if query_page in PUBLIC_ROUTES:
+    st.session_state.page = query_page
+
 if "language" not in st.session_state:
     st.session_state.language = "TR — Türkçe"
 
@@ -28,12 +33,14 @@ def html(content):
 
 
 def navigate(page):
+    st.query_params.clear()
     st.session_state.page = page
     st.rerun()
 
 
 def set_page(page):
     """Streamlit button callback: runs before the page rerenders."""
+    st.query_params.clear()
     st.session_state.page = page
 
 
@@ -223,8 +230,27 @@ html(
         color:#07111f; font-weight:900; font-size:14px;
     }
     .brand-name { color:#fff; font-size:21px; font-weight:820; letter-spacing:-.5px; }
-    .nav-links { color:#91a4ba; font-size:14px; height:46px; display:flex; align-items:center; justify-content:center; gap:30px; white-space:nowrap; }
-    .nav-links span { display:inline-block; }
+    .nav-links { color:#91a4ba; font-size:14px; height:46px; display:flex; align-items:center; justify-content:center; gap:24px; white-space:nowrap; }
+    .nav-links a { color:#91a4ba !important; text-decoration:none !important; padding:11px 0; border-bottom:2px solid transparent; transition:color .2s ease,border-color .2s ease; }
+    .nav-links a:hover { color:#fff !important; border-color:rgba(57,229,140,.45); }
+    .nav-links a.active { color:#fff !important; border-color:#39e58c; }
+    [class*="st-key-public_nav_"] { min-width:0; }
+    [class*="st-key-public_nav_"] div[data-testid="stHorizontalBlock"] { gap:5px; }
+    [class*="st-key-public_nav_"] div[data-testid="stButton"] button {
+        min-height:38px !important; height:38px !important; padding:0 5px !important;
+        border:0 !important; border-bottom:2px solid transparent !important; border-radius:0 !important;
+        background:transparent !important; box-shadow:none !important; transform:none !important;
+    }
+    [class*="st-key-public_nav_"] div[data-testid="stButton"] button p,
+    [class*="st-key-public_nav_"] div[data-testid="stButton"] button span {
+        color:#91a4ba !important; font-size:12px !important; font-weight:650 !important; white-space:nowrap !important;
+    }
+    [class*="st-key-public_nav_"] div[data-testid="stButton"] button:hover { border-bottom-color:rgba(57,229,140,.45) !important; }
+    [class*="st-key-public_nav_"] div[data-testid="stButton"] button:hover p,
+    [class*="st-key-public_nav_"] div[data-testid="stButton"] button:hover span { color:#fff !important; }
+    [class*="st-key-public_nav_"] [class*="st-key-active_nav_"] button { border-bottom-color:#39e58c !important; }
+    [class*="st-key-public_nav_"] [class*="st-key-active_nav_"] button p,
+    [class*="st-key-public_nav_"] [class*="st-key-active_nav_"] button span { color:#fff !important; }
     .lang-menu { position:relative; height:46px; display:flex; align-items:center; justify-content:center; }
     .lang-menu summary { list-style:none; cursor:pointer; display:flex; align-items:center; gap:8px; color:#d8e0ea; font-size:12px; font-weight:700; padding:8px 5px; user-select:none; }
     .lang-menu summary::-webkit-details-marker { display:none; }
@@ -236,11 +262,41 @@ html(
     .lang-options { position:absolute; z-index:40; top:43px; right:0; width:145px; padding:7px; border:1px solid rgba(255,255,255,.1); border-radius:12px; background:#101f33; box-shadow:0 18px 45px rgba(0,0,0,.35); }
     .lang-options div { color:#9fb0c2; padding:8px 9px; border-radius:7px; font-size:11px; }
     .lang-options div:first-child { color:#fff; background:rgba(155,108,255,.13); }
+    .marketing-hero { max-width:880px; margin:72px auto 46px; text-align:center; }
+    .marketing-hero h1 { color:#fff; font-size:clamp(42px,6vw,72px); line-height:1.02; letter-spacing:-3px; margin:15px 0 20px; }
+    .marketing-hero p { color:#9fb0c2; font-size:18px; line-height:1.75; max-width:720px; margin:0 auto; }
+    .marketing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin:34px 0 80px; }
+    .marketing-card { min-height:210px; padding:27px; border-radius:20px; border:1px solid rgba(255,255,255,.08); background:linear-gradient(145deg,rgba(27,47,70,.9),rgba(17,31,49,.88)); box-shadow:0 20px 55px rgba(0,0,0,.18); }
+    .marketing-card .number { color:#39e58c; font-size:12px; font-weight:850; letter-spacing:1.6px; }
+    .marketing-card h3 { color:#fff; font-size:21px; margin:17px 0 10px; }
+    .marketing-card p { color:#92a5b9; line-height:1.65; font-size:14px; margin:0; }
+    .wide-story { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:20px 0 78px; }
+    .story-panel { padding:34px; border-radius:22px; border:1px solid rgba(255,255,255,.08); background:rgba(20,38,59,.72); }
+    .story-panel h2 { color:#fff; font-size:30px; letter-spacing:-1px; margin:10px 0 12px; }
+    .story-panel p, .story-panel li { color:#97a9bc; line-height:1.7; }
+    .story-panel li { margin:9px 0; }
+    .analysis-preview { padding:28px; border-radius:22px; border:1px solid rgba(155,108,255,.25); background:radial-gradient(circle at 85% 10%,rgba(155,108,255,.2),transparent 42%),rgba(17,31,49,.92); }
+    .analysis-bar { margin:18px 0; }
+    .analysis-bar div:first-child { display:flex; justify-content:space-between; color:#dbe4ed; font-size:13px; margin-bottom:8px; }
+    .analysis-track { height:8px; border-radius:20px; background:rgba(255,255,255,.07); overflow:hidden; }
+    .analysis-fill { height:100%; border-radius:20px; background:linear-gradient(90deg,#9b6cff,#39e58c); }
+    .security-list { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin:30px 0 75px; }
+    .security-item { padding:25px; border:1px solid rgba(57,229,140,.13); border-radius:18px; background:rgba(19,38,58,.7); }
+    .security-item b { display:block; color:#fff; margin-bottom:8px; }
+    .security-item span { color:#91a4ba; line-height:1.6; font-size:14px; }
+    .contact-intro { padding:28px; border-radius:20px; background:linear-gradient(145deg,rgba(155,108,255,.15),rgba(57,229,140,.06)); border:1px solid rgba(155,108,255,.25); }
+    .contact-intro h2 { color:#fff; margin:8px 0 12px; }
+    .contact-intro p { color:#9fb0c2; line-height:1.7; }
+    .public-footer { margin:40px 0 15px; padding:25px 0; border-top:1px solid rgba(255,255,255,.08); color:#75899f; font-size:12px; text-align:center; }
     .st-key-login_cta button { background:linear-gradient(135deg,#39e58c,#20bc6b) !important; border-color:#39e58c !important; color:#07111f !important; box-shadow:0 10px 26px rgba(57,229,140,.18) !important; }
     .st-key-login_cta button p, .st-key-login_cta button span { color:#07111f !important; }
     .st-key-login_cta button:hover { background:linear-gradient(135deg,#57ef9f,#2dce7b) !important; border-color:#57ef9f !important; }
     .st-key-signup_cta button { background:rgba(255,255,255,.025) !important; border-color:rgba(235,241,247,.55) !important; color:#f1f5f9 !important; box-shadow:none !important; }
     .st-key-signup_cta button p, .st-key-signup_cta button span { color:#f1f5f9 !important; }
+    [class*="st-key-login_cta_"] button { background:linear-gradient(135deg,#39e58c,#20bc6b) !important; border-color:#39e58c !important; color:#07111f !important; box-shadow:0 10px 26px rgba(57,229,140,.18) !important; }
+    [class*="st-key-login_cta_"] button p, [class*="st-key-login_cta_"] button span { color:#07111f !important; }
+    [class*="st-key-signup_cta_"] button { background:rgba(255,255,255,.025) !important; border-color:rgba(235,241,247,.55) !important; color:#f1f5f9 !important; box-shadow:none !important; }
+    [class*="st-key-signup_cta_"] button p, [class*="st-key-signup_cta_"] button span { color:#f1f5f9 !important; }
     .st-key-signup_cta button:hover { background:rgba(255,255,255,.08) !important; border-color:#fff !important; }
 
     .hero { text-align:center; padding:72px 0 34px; }
@@ -614,8 +670,12 @@ html(
 
     @media (max-width:900px) {
         .nav-links { display:none; }
+        [class*="st-key-public_nav_"] div[data-testid="stHorizontalBlock"] { gap:2px; }
+        [class*="st-key-public_nav_"] div[data-testid="stButton"] button p,
+        [class*="st-key-public_nav_"] div[data-testid="stButton"] button span { font-size:10px !important; }
         .stage-grid { grid-template-columns:1fr; }
         .visual-features, .pricing-grid { grid-template-columns:1fr; }
+        .marketing-grid, .wide-story, .security-list { grid-template-columns:1fr; }
         .price-card.featured { transform:none; }
         .hero { padding-top:42px; }
         .hero h1 { letter-spacing:-2px; }
@@ -631,14 +691,21 @@ def brand():
     html(f'<div class="brand"><img class="brand-logo" src="{LOGO_IMAGE}" alt="Menteleven"></div>')
 
 
-def show_landing_page():
-    logo_col, nav_col, language_col, login_col, signup_col = st.columns(
-        [1.25, 2.65, .62, .9, .9], vertical_alignment="center"
+NAV_ITEMS = [
+    ("product", "Ürün"),
+    ("how_it_works", "Nasıl Çalışır?"),
+    ("analyses", "Analizler"),
+    ("security", "Güvenlik"),
+    ("contact", "İletişim"),
+]
+
+
+def public_header(active="landing"):
+    logo_col, spacer_col, language_col, login_col, signup_col = st.columns(
+        [1.45, 3.2, .58, .82, .82], vertical_alignment="center"
     )
     with logo_col:
         brand()
-    with nav_col:
-        html('<div class="nav-links"><span>Ürün</span><span>Nasıl Çalışır</span><span>Analizler</span><span>Güvenlik</span></div>')
     with language_col:
         html('''
         <details class="lang-menu">
@@ -649,21 +716,147 @@ def show_landing_page():
         </details>
         ''')
     with login_col:
-        st.button(
-            "Giriş Yap",
-            key="login_cta",
-            use_container_width=True,
-            on_click=set_page,
-            args=("demo_login",),
-        )
+        st.button("Giriş Yap", key=f"login_cta_{active}", use_container_width=True, on_click=set_page, args=("demo_login",))
     with signup_col:
-        st.button(
-            "Üye Ol",
-            key="signup_cta",
-            use_container_width=True,
-            on_click=set_page,
-            args=("demo_login",),
+        st.button("Üye Ol", key=f"signup_cta_{active}", use_container_width=True, on_click=set_page, args=("demo_login",))
+
+    # Keep the public navigation on its own full-width row. This avoids it being
+    # clipped by Streamlit's responsive header columns on narrower deployments.
+    with st.container(key=f"public_nav_{active}"):
+        left_space, *nav_slots, right_space = st.columns(
+            [.7, 1, 1.35, 1, 1, 1, .7], vertical_alignment="center"
         )
+        for slot, (route, label) in zip(nav_slots, NAV_ITEMS):
+            with slot:
+                key_prefix = "active_nav" if active == route else "nav"
+                st.button(
+                    label,
+                    key=f"{key_prefix}_{route}_{active}",
+                    use_container_width=True,
+                    on_click=set_page,
+                    args=(route,),
+                )
+
+
+def public_footer():
+    html('<div class="public-footer">Menteleven · Futbol kulüpleri için oyuncu wellbeing platformu · Demo sürümü</div>')
+
+
+def page_hero(eyebrow, title, accent, copy):
+    html(f'''
+    <section class="marketing-hero">
+        <div class="eyebrow">{eyebrow}</div>
+        <h1>{title} <span class="accent">{accent}</span></h1>
+        <p>{copy}</p>
+    </section>
+    ''')
+
+
+def show_product_page():
+    public_header("product")
+    page_hero("MENTELEVEN PLATFORMU", "Oyuncu wellbeing'ini tek merkezde", "anlamlandırın.", "Anketler, uzman gözlemleri, aktivite sinyalleri ve görsel kayıtlar; teknik ekibin hızlı karar verebildiği ortak bir oyuncu profilinde buluşur.")
+    html('''
+    <div class="marketing-grid">
+        <div class="marketing-card"><div class="number">01 · TAKIM MERKEZİ</div><h3>Tek bakışta takım görünümü</h3><p>Motivasyon, enerji, uyku, hazırlık, stres ve yorgunluk değerlerini takım ve oyuncu seviyesinde takip edin.</p></div>
+        <div class="marketing-card"><div class="number">02 · OYUNCU PROFİLİ</div><h3>Zaman içinde değişimi görün</h3><p>Spider chart, skor kartları, uzman notları ve geçmiş değerlendirmelerle her oyuncunun güncel bağlamını okuyun.</p></div>
+        <div class="marketing-card"><div class="number">03 · AI İÇGÖRÜLERİ</div><h3>Sinyali aksiyona dönüştürün</h3><p>Demo AI önerileri; öncelik, koruyucu aksiyon ve izleme planı olarak teknik ekibe sade biçimde sunulur.</p></div>
+        <div class="marketing-card"><div class="number">04 · GÖRSEL KAYIT</div><h3>Maç ve antrenman bağlamı</h3><p>Fotoğrafları tarih, seans ve uzman notuyla kaydedin; görsel analizleri oyuncunun zaman çizelgesine ekleyin.</p></div>
+        <div class="marketing-card"><div class="number">05 · SAKATLIK HARİTASI</div><h3>Bilimsel 2D vücut haritası</h3><p>Birden fazla sakatlık bölgesini stabil ve cinsiyetsiz bir vücut haritası üzerinde işaretleyin.</p></div>
+        <div class="marketing-card"><div class="number">06 · UZMAN DENETİMİ</div><h3>İnsan kararını güçlendirin</h3><p>Menteleven teşhis koymaz; psikolog, sağlık ekibi ve teknik kadronun değerlendirmesini destekleyen sinyaller üretir.</p></div>
+    </div>
+    ''')
+    public_footer()
+
+
+def show_how_it_works_page():
+    public_header("how_it_works")
+    page_hero("4 ADIMDA MENTAL HAZIRLIK", "Veriden içgörüye,", "sade bir akış.", "Oyuncuyu yormayan kısa girdiler, takımın günlük operasyonuna uyum sağlayan anlaşılır wellbeing çıktıları üretir.")
+    html('''
+    <div class="marketing-grid">
+        <div class="marketing-card"><div class="number">01 · VERİYİ TOPLA</div><h3>Kısa oyuncu anketi</h3><p>Oyuncu; stres, motivasyon, enerji, yorgunluk, uyku ve hazırlık sorularını mobil veya masaüstünden yanıtlar.</p></div>
+        <div class="marketing-card"><div class="number">02 · BAĞLAMI EKLE</div><h3>Uzman notu ve görsel</h3><p>Teknik ekip maç, antrenman veya rehabilitasyon bağlamını; görsel ve gözlem notlarıyla tamamlar.</p></div>
+        <div class="marketing-card"><div class="number">03 · ANALİZ ET</div><h3>Sinyalleri birlikte değerlendir</h3><p>Sistem tek bir skora dayanmaz; değişimi, eş zamanlı risk sinyallerini ve oyuncunun kendi bildirimini birlikte ele alır.</p></div>
+    </div>
+    <div class="wide-story">
+        <div class="story-panel"><div class="eyebrow">04 · AKSİYONA GEÇ</div><h2>Teknik ekip için açık öneriler</h2><p>Öncelik seviyesi, önerilen takip süresi ve koruyucu aksiyonlar oyuncu profilinde görünür. Karar her zaman yetkili uzmandadır.</p></div>
+        <div class="story-panel"><div class="eyebrow">SÜREKLİ TAKİP</div><h2>Tek ölçüm değil, trend</h2><ul><li>Günlük veya haftalık tekrar</li><li>Oyuncu bazlı zaman çizelgesi</li><li>Takım ortalamasıyla karşılaştırma</li><li>Belirgin sapmalarda takip sinyali</li></ul></div>
+    </div>
+    ''')
+    public_footer()
+
+
+def show_analyses_page():
+    public_header("analyses")
+    page_hero("ÇOK KATMANLI ANALİZ", "Rakamları değil, oyuncunun", "bağlamını görün.", "Her analiz türü tek başına hüküm vermek yerine diğer sinyallerle birlikte okunur; böylece teknik ekip daha dengeli bir değerlendirme yapar.")
+    html('''
+    <div class="wide-story">
+        <div class="analysis-preview">
+            <div class="eyebrow">ÖRNEK WELLBEING PROFİLİ</div>
+            <div class="analysis-bar"><div><span>Motivasyon</span><b>82</b></div><div class="analysis-track"><div class="analysis-fill" style="width:82%"></div></div></div>
+            <div class="analysis-bar"><div><span>Enerji</span><b>76</b></div><div class="analysis-track"><div class="analysis-fill" style="width:76%"></div></div></div>
+            <div class="analysis-bar"><div><span>Uyku</span><b>71</b></div><div class="analysis-track"><div class="analysis-fill" style="width:71%"></div></div></div>
+            <div class="analysis-bar"><div><span>Hazırlık</span><b>80</b></div><div class="analysis-track"><div class="analysis-fill" style="width:80%"></div></div></div>
+        </div>
+        <div class="story-panel"><div class="eyebrow">BİRLİKTE OKUNAN SİNYALLER</div><h2>Altı temel wellbeing metriği</h2><p>Motivasyon, enerji, uyku ve hazırlık olumlu kapasiteyi; stres ve yorgunluk ise takip edilmesi gereken yük sinyallerini gösterir. Trendler, tek günlük skorlardan daha değerlidir.</p></div>
+    </div>
+    <div class="marketing-grid">
+        <div class="marketing-card"><div class="number">ANKET ANALİZİ</div><h3>Oyuncunun kendi bildirimi</h3><p>60 soruluk yapı, altı wellbeing kategorisinde tutarlı ve karşılaştırılabilir skorlar oluşturur.</p></div>
+        <div class="marketing-card"><div class="number">GÖRSEL ANALİZ</div><h3>Maç ve antrenman kayıtları</h3><p>Isı haritası katmanı, görsel kaydı uzman notu ve seans bağlamıyla birlikte zaman çizelgesine taşır.</p></div>
+        <div class="marketing-card"><div class="number">AI DEĞERLENDİRME</div><h3>Üç somut takip önerisi</h3><p>Her oyuncu için öncelik, yük yönetimi ve izleme planı başlıklarında demo aksiyon önerileri sunulur.</p></div>
+    </div>
+    ''')
+    public_footer()
+
+
+def show_security_page():
+    public_header("security")
+    page_hero("GÜVENLİK VE ETİK", "Oyuncu verisinde", "sorumlu yaklaşım.", "Menteleven, hassas wellbeing verilerini minimum veri, açık izin, rol bazlı erişim ve uzman denetimi ilkeleriyle ele alacak şekilde tasarlanır.")
+    html('''
+    <div class="security-list">
+        <div class="security-item"><b>KVKK odaklı izin yönetimi</b><span>Oyuncu ve kullanıcı verileri için açık aydınlatma, amaç sınırlaması ve gerekli onay akışları esas alınır.</span></div>
+        <div class="security-item"><b>Rol bazlı erişim</b><span>Teknik direktör, psikolog, sağlık ekibi ve yönetici rollerinin yalnızca ihtiyaç duyduğu verilere erişmesi hedeflenir.</span></div>
+        <div class="security-item"><b>Minimum veri yaklaşımı</b><span>Değerlendirme amacı için gerekli olmayan kişisel veri toplanmaz; yüz tanıma veya kimlik tespiti yapılmaz.</span></div>
+        <div class="security-item"><b>Uzman denetimli AI</b><span>AI çıktıları karar veya teşhis değildir. Son değerlendirme ve aksiyon yetkili kulüp uzmanına aittir.</span></div>
+        <div class="security-item"><b>Kayıt ve izlenebilirlik</b><span>Değerlendirme geçmişi, notlar ve ilgili kullanıcı aksiyonları ürünün kalıcı sürümünde denetlenebilir şekilde kaydedilir.</span></div>
+        <div class="security-item"><b>Güvenli ürün mimarisi</b><span>Üretim aşamasında şifreleme, güvenli oturum, yedekleme ve erişim kayıtları mimarinin temel parçaları olacaktır.</span></div>
+    </div>
+    <div class="security-panel"><div class="eyebrow">ÖNEMLİ SINIR</div><h2>Psikolojik veya tıbbi teşhis üretmez.</h2><p>Platform erken takip sinyalleri ve karar destek çıktıları sağlar. Acil risk veya sağlık şüphesinde kulübün yetkili sağlık ve psikoloji profesyonellerinin süreçleri uygulanmalıdır.</p></div>
+    ''')
+    public_footer()
+
+
+def show_contact_page():
+    public_header("contact")
+    page_hero("İLETİŞİM", "Kulübünüz için Menteleven'ı", "birlikte değerlendirelim.", "Demo, iş birliği veya ürün hakkında bilgi almak için formu doldurun. Ekibimiz kurumsal e-posta adresiniz üzerinden sizinle iletişime geçsin.")
+    intro_col, form_col = st.columns([.82, 1.3], gap="large")
+    with intro_col:
+        html('''<div class="contact-intro"><div class="eyebrow">KULÜPLER VE KURULUŞLAR İÇİN</div><h2>Doğru başlangıç noktasını birlikte belirleyelim.</h2><p>Takım yapınız, oyuncu sayınız ve mevcut değerlendirme sürecinize göre en uygun kullanım senaryosunu konuşabiliriz.</p><p><b style="color:#fff">Demo görüşmesi</b><br>Ürün akışı ve örnek oyuncu analizleri</p><p><b style="color:#fff">Kurumsal iş birliği</b><br>Kulüp, akademi ve spor organizasyonları</p></div>''')
+    with form_col:
+        with st.form("contact_form", clear_on_submit=True):
+            name = st.text_input("Ad Soyad *", placeholder="Adınız ve soyadınız")
+            organisation = st.text_input("Kulüp, kuruluş veya şirket *", placeholder="Kurum adı")
+            title = st.text_input("Ünvan *", placeholder="Örn. Teknik Direktör")
+            phone = st.text_input("Telefon *", placeholder="+90 5xx xxx xx xx")
+            email = st.text_input("Kurumsal e-posta *", placeholder="ad.soyad@kulup.com")
+            message = st.text_area("Mesaj *", placeholder="Menteleven ile ilgili ihtiyacınızı kısaca paylaşın.", height=150)
+            consent = st.checkbox("KVKK Aydınlatma Metni'ni okudum; iletişim talebim kapsamında kişisel verilerimin işlenmesini kabul ediyorum. *")
+            submitted = st.form_submit_button("Mesajı Gönder →", use_container_width=True)
+        if submitted:
+            missing = not all([name.strip(), organisation.strip(), title.strip(), phone.strip(), email.strip(), message.strip()])
+            corporate_email = "@" in email and "." in email.split("@")[-1]
+            if missing:
+                st.error("Lütfen yıldızlı alanların tamamını doldurun.")
+            elif not corporate_email:
+                st.error("Lütfen geçerli bir kurumsal e-posta adresi girin.")
+            elif not consent:
+                st.error("Formu göndermek için KVKK izin kutucuğunu işaretleyin.")
+            else:
+                st.success("Mesajınız alındı. Demo sürümünde form gerçek bir e-posta göndermez.")
+    public_footer()
+
+
+def show_landing_page():
+    public_header("landing")
 
     if st.session_state.language != "TR — Türkçe":
         st.info("Seçtiğiniz dil demo sürümünde yakında aktif olacaktır. İçerik şimdilik Türkçedir.")
@@ -1537,6 +1730,16 @@ def show_survey():
 
 if st.session_state.page == "landing":
     show_landing_page()
+elif st.session_state.page == "product":
+    show_product_page()
+elif st.session_state.page == "how_it_works":
+    show_how_it_works_page()
+elif st.session_state.page == "analyses":
+    show_analyses_page()
+elif st.session_state.page == "security":
+    show_security_page()
+elif st.session_state.page == "contact":
+    show_contact_page()
 elif st.session_state.page == "demo_login":
     show_demo_login()
 elif st.session_state.page == "player_profile":
