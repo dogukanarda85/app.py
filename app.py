@@ -223,6 +223,8 @@ html(
     .route-button.secondary { background:rgba(155,108,255,.09); border-color:rgba(155,108,255,.35); box-shadow:none; }
 
     .brand { display:flex; align-items:center; gap:11px; height:46px; }
+    .brand-home-link { display:inline-flex; align-items:center; text-decoration:none !important; cursor:pointer; border-radius:10px; }
+    .brand-home-link:focus-visible { outline:2px solid #39e58c; outline-offset:4px; }
     .brand-logo { display:block; width:190px; max-width:100%; height:auto; }
     .brand-mark {
         width:35px; height:35px; display:grid; place-items:center;
@@ -280,6 +282,8 @@ html(
     .analysis-bar div:first-child { display:flex; justify-content:space-between; color:#dbe4ed; font-size:13px; margin-bottom:8px; }
     .analysis-track { height:8px; border-radius:20px; background:rgba(255,255,255,.07); overflow:hidden; }
     .analysis-fill { height:100%; border-radius:20px; background:linear-gradient(90deg,#9b6cff,#39e58c); }
+    .analysis-fill.warning { background:linear-gradient(90deg,#9b6cff,#ffb84d); }
+    .analysis-fill.risk { background:linear-gradient(90deg,#9b6cff,#ff657a); }
     .security-list { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin:30px 0 75px; }
     .security-item { padding:25px; border:1px solid rgba(57,229,140,.13); border-radius:18px; background:rgba(19,38,58,.7); }
     .security-item b { display:block; color:#fff; margin-bottom:8px; }
@@ -287,6 +291,16 @@ html(
     .contact-intro { padding:28px; border-radius:20px; background:linear-gradient(145deg,rgba(155,108,255,.15),rgba(57,229,140,.06)); border:1px solid rgba(155,108,255,.25); }
     .contact-intro h2 { color:#fff; margin:8px 0 12px; }
     .contact-intro p { color:#9fb0c2; line-height:1.7; }
+    .st-key-contact_form div[data-testid="stFormSubmitButton"] button {
+        background:linear-gradient(135deg,#9b6cff,#6f4be8) !important;
+        border:1px solid #9b6cff !important; color:#fff !important;
+        box-shadow:0 12px 30px rgba(111,75,232,.28) !important;
+    }
+    .st-key-contact_form div[data-testid="stFormSubmitButton"] button p,
+    .st-key-contact_form div[data-testid="stFormSubmitButton"] button span { color:#fff !important; }
+    .st-key-contact_form div[data-testid="stFormSubmitButton"] button:hover {
+        background:linear-gradient(135deg,#ad85ff,#805df0) !important; border-color:#b697ff !important;
+    }
     .public-footer { margin:40px 0 15px; padding:25px 0; border-top:1px solid rgba(255,255,255,.08); color:#75899f; font-size:12px; text-align:center; }
     .st-key-login_cta button { background:linear-gradient(135deg,#39e58c,#20bc6b) !important; border-color:#39e58c !important; color:#07111f !important; box-shadow:0 10px 26px rgba(57,229,140,.18) !important; }
     .st-key-login_cta button p, .st-key-login_cta button span { color:#07111f !important; }
@@ -688,7 +702,7 @@ html(
 
 
 def brand():
-    html(f'<div class="brand"><img class="brand-logo" src="{LOGO_IMAGE}" alt="Menteleven"></div>')
+    html(f'''<div class="brand"><a class="brand-home-link" href="?page=landing" target="_self" aria-label="Menteleven ana sayfa"><img class="brand-logo" src="{LOGO_IMAGE}" alt="Menteleven"></a></div>''')
 
 
 NAV_ITEMS = [
@@ -791,6 +805,8 @@ def show_analyses_page():
             <div class="analysis-bar"><div><span>Enerji</span><b>76</b></div><div class="analysis-track"><div class="analysis-fill" style="width:76%"></div></div></div>
             <div class="analysis-bar"><div><span>Uyku</span><b>71</b></div><div class="analysis-track"><div class="analysis-fill" style="width:71%"></div></div></div>
             <div class="analysis-bar"><div><span>Hazırlık</span><b>80</b></div><div class="analysis-track"><div class="analysis-fill" style="width:80%"></div></div></div>
+            <div class="analysis-bar"><div><span>Stres</span><b>32</b></div><div class="analysis-track"><div class="analysis-fill warning" style="width:32%"></div></div></div>
+            <div class="analysis-bar"><div><span>Yorgunluk</span><b>44</b></div><div class="analysis-track"><div class="analysis-fill risk" style="width:44%"></div></div></div>
         </div>
         <div class="story-panel"><div class="eyebrow">BİRLİKTE OKUNAN SİNYALLER</div><h2>Altı temel wellbeing metriği</h2><p>Motivasyon, enerji, uyku ve hazırlık olumlu kapasiteyi; stres ve yorgunluk ise takip edilmesi gereken yük sinyallerini gösterir. Trendler, tek günlük skorlardan daha değerlidir.</p></div>
     </div>
@@ -835,7 +851,7 @@ def show_contact_page():
             email = st.text_input("Kurumsal e-posta *", placeholder="ad.soyad@kulup.com")
             message = st.text_area("Mesaj *", placeholder="Menteleven ile ilgili ihtiyacınızı kısaca paylaşın.", height=150)
             consent = st.checkbox("KVKK Aydınlatma Metni'ni okudum; iletişim talebim kapsamında kişisel verilerimin işlenmesini kabul ediyorum. *")
-            submitted = st.form_submit_button("Mesajı Gönder →", use_container_width=True)
+            submitted = st.form_submit_button("Mesajı Gönder →", type="primary", use_container_width=True)
         if submitted:
             missing = not all([name.strip(), organisation.strip(), title.strip(), phone.strip(), email.strip(), message.strip()])
             corporate_email = "@" in email and "." in email.split("@")[-1]
