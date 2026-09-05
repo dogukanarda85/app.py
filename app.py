@@ -539,6 +539,24 @@ html(
     .glass-title { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
     .glass-title b { color:#eef3f9; font-size:14px; }
     .glass-title span { color:#8296ad; font-size:10px; }
+    .ai-summary-card { position:relative; overflow:hidden; margin-top:18px; padding:22px; border:1px solid rgba(155,108,255,.5); background:linear-gradient(135deg,rgba(36,27,78,.92),rgba(11,28,43,.94)); box-shadow:0 18px 55px rgba(83,48,170,.18),inset 0 1px 0 rgba(255,255,255,.06); }
+    .ai-summary-card:before { content:""; position:absolute; width:260px; height:260px; right:-100px; top:-150px; border-radius:50%; background:rgba(155,108,255,.16); filter:blur(25px); pointer-events:none; }
+    .ai-summary-head { position:relative; display:flex; align-items:flex-start; justify-content:space-between; gap:18px; padding-bottom:17px; border-bottom:1px solid rgba(255,255,255,.09); }
+    .ai-title-row { display:flex; align-items:center; gap:11px; }
+    .ai-spark { display:grid; place-items:center; width:36px; height:36px; flex:0 0 36px; border-radius:11px; color:#08131e; font-size:18px; background:linear-gradient(135deg,#42ed9a,#a77aff); box-shadow:0 0 22px rgba(84,232,165,.25); }
+    .ai-summary-head h3 { margin:0 0 4px; color:#f5f7fb; font-size:19px; }
+    .ai-summary-head p { margin:0; color:#9fb0c3; font-size:12px; }
+    .ai-demo-badge { position:relative; white-space:nowrap; padding:7px 10px; border:1px solid rgba(155,108,255,.42); border-radius:999px; color:#c9b5ff; background:rgba(155,108,255,.12); font-size:9px; font-weight:800; letter-spacing:.08em; }
+    .ai-overview { position:relative; margin:16px 0; color:#d9e3ef; line-height:1.65; font-size:13px; }
+    .ai-recommendations { position:relative; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:11px; }
+    .ai-recommendation { min-height:116px; padding:15px; border:1px solid rgba(148,168,193,.18); border-radius:13px; background:rgba(8,22,36,.62); }
+    .ai-rec-top { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+    .ai-rec-icon { display:grid; place-items:center; width:27px; height:27px; border-radius:8px; background:rgba(61,229,143,.12); color:#43e797; font-size:14px; }
+    .ai-priority { font-size:9px; font-weight:800; color:#aebdd0; letter-spacing:.06em; }
+    .ai-recommendation b { display:block; color:#f0f4f9; font-size:13px; margin-bottom:7px; }
+    .ai-recommendation p { margin:0; color:#a9b8c9; font-size:11px; line-height:1.55; }
+    .ai-disclaimer { position:relative; margin-top:14px; color:#7f92a8; font-size:10px; }
+    @media(max-width:800px){ .ai-recommendations { grid-template-columns:1fr; } .ai-summary-head { flex-direction:column; } }
     .analytics-grid { display:grid; grid-template-columns:1.12fr .88fr; gap:15px; margin:20px 0 18px; }
     .trend-svg { width:100%; height:255px; display:block; }
     .gridline { stroke:rgba(255,255,255,.08); stroke-width:1; }
@@ -986,7 +1004,49 @@ def show_dashboard():
     st.caption("Bu sonuçlar psikolojik veya tıbbi teşhis değildir; uzman karar sürecini destekler.")
 
 
+def build_ai_recommendations(player):
+    """Create deterministic, metric-aware demo insights for each player."""
+    name = player["name"].split()[0]
+    sleep = player["sleep"]
+    energy = player["energy"]
+    readiness = player["readiness"]
+    stress = player["stress"]
+    fatigue = player["fatigue"]
+    motivation = player["motivation"]
+
+    if stress >= 60:
+        first = ("Birebir temas planlayın", f"{name} ile antrenman öncesi 10 dakikalık, yargısız bir check-in görüşmesi yapın; stres kaynağını açık uçlu sorularla netleştirin.", "YÜKSEK ÖNCELİK", "◎")
+    elif sleep < 65:
+        first = ("Uyku rutinini güçlendirin", f"{name} için önümüzdeki 3 gün uyku süresi ve uyku kalitesi takibi açın; geç saat antrenman yükünü yeniden değerlendirin.", "ÖNCELİKLİ", "☾")
+    else:
+        first = ("Olumlu ritmi koruyun", f"{name}'in motivasyon ({motivation}) ve uyku ({sleep}) dengesi olumlu. Mevcut rutin korunarak kısa günlük check-in yeterli görünüyor.", "KORUYUCU", "✓")
+
+    if fatigue >= 65 or energy < 65:
+        second = ("Yükü kademeli azaltın", f"Yorgunluk {fatigue}, enerji {energy}. Bir sonraki saha çalışmasında toplam yükü yaklaşık %10–15 azaltıp aktif toparlanma ekleyin.", "24–48 SAAT", "↘")
+    else:
+        second = ("Antrenman yükünü sürdürün", f"Enerji ({energy}) ve yorgunluk ({fatigue}) birlikte değerlendirildiğinde planlı yük sürdürülebilir; seans sonrası yeniden ölçüm alın.", "YÜK PLANI", "↗")
+
+    if readiness < 70:
+        third = ("Hazırlık kontrolü yapın", f"Hazırlık skoru {readiness}. İlk ısınma bloğundan sonra RPE geri bildirimi alın; düşük kalırsa bireysel programa geçin.", "SEANS ÖNCESİ", "◈")
+    else:
+        third = ("3 günlük trendi izleyin", f"Hazırlık skoru {readiness}. Anketi üç gün aynı saatte tekrarlayın; sapma 10 puanı aşarsa uzman uyarısı oluşturun.", "İZLEME", "◉")
+
+    risk_count = sum([stress >= 60, fatigue >= 65, sleep < 65, energy < 65, readiness < 70])
+    if risk_count >= 2:
+        overview = f"{name} için {risk_count} eş zamanlı takip sinyali tespit edildi. Öncelik toparlanma yükünü düzenlemek ve oyuncuyla kısa bir görüşme yapmaktır."
+    elif risk_count == 1:
+        overview = f"{name} için genel profil dengeli; ancak tek bir metrik yakından izlenmeli. Aşağıdaki aksiyonlar erken müdahale amacıyla önerildi."
+    else:
+        overview = f"{name} dengeli ve yüksek hazırlık gösteriyor. Öneriler mevcut performans ritmini korumaya ve olası düşüşleri erken yakalamaya odaklanıyor."
+    return overview, [first, second, third]
+
+
 def render_player_analysis(player):
+    ai_overview, ai_items = build_ai_recommendations(player)
+    ai_cards = "".join(
+        f'''<div class="ai-recommendation"><div class="ai-rec-top"><span class="ai-rec-icon">{icon}</span><span class="ai-priority">{priority}</span></div><b>{title}</b><p>{detail}</p></div>'''
+        for title, detail, priority, icon in ai_items
+    )
     c1, c2, c3, c4, c5, c6 = st.columns(6)
     c1.metric("Motivasyon", player["motivation"], "+4")
     c2.metric("Enerji", player["energy"], "-2")
@@ -1009,7 +1069,15 @@ def render_player_analysis(player):
         </div>
         <div class="glass-card"><div class="glass-title"><b>Öz-Bildirim İlişkili Duygusal Yük Haritası</b><span>BUGÜN</span></div><div class="heatmap-photo" style="min-height:360px;border-radius:12px"><div class="signal-badge">Duygusal yük sinyali<br><b>Orta</b></div><div class="heat-legend"><span>Düşük</span><span class="legend-bar"></span><span>Yüksek</span></div></div></div>
     </div>
-    <div class="glass-card" style="margin-top:15px"><div class="glass-title"><b>AI Destekli Değerlendirme Özeti</b><span>UZMAN KONTROLÜ GEREKİR</span></div><p style="line-height:1.7;margin:0">Oyuncunun motivasyonu ve hazırlık seviyesi diğer metriklerle birlikte değerlendirildi. Bu çıktı teşhis değildir; gerektiğinde oyuncuyla görüşme yapılması önerilir.</p></div>
+    <div class="glass-card ai-summary-card">
+        <div class="ai-summary-head">
+            <div class="ai-title-row"><span class="ai-spark">✦</span><div><h3>AI Destekli Değerlendirme</h3><p>{player['name']} · Güncel wellbeing verilerine göre aksiyon önerileri</p></div></div>
+            <span class="ai-demo-badge">DEMO AI İÇGÖRÜSÜ</span>
+        </div>
+        <p class="ai-overview">{ai_overview}</p>
+        <div class="ai-recommendations">{ai_cards}</div>
+        <div class="ai-disclaimer">Bu öneriler temsili demo çıktılarıdır; psikolojik veya tıbbi teşhis değildir. Nihai karar uzman ekip tarafından verilmelidir.</div>
+    </div>
     """)
 
 
