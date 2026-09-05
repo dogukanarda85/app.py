@@ -235,9 +235,9 @@ html(
     .nav-links a:hover { color:#fff !important; border-color:rgba(57,229,140,.45); }
     .nav-links a.active { color:#fff !important; border-color:#39e58c; }
     [class*="st-key-public_nav_"] { min-width:0; }
-    [class*="st-key-public_nav_"] div[data-testid="stHorizontalBlock"] { gap:5px; }
+    [class*="st-key-public_nav_"] div[data-testid="stHorizontalBlock"] { gap:2px; }
     [class*="st-key-public_nav_"] div[data-testid="stButton"] button {
-        min-height:38px !important; height:38px !important; padding:0 5px !important;
+        min-height:38px !important; height:38px !important; padding:0 2px !important;
         border:0 !important; border-bottom:2px solid transparent !important; border-radius:0 !important;
         background:transparent !important; box-shadow:none !important; transform:none !important;
     }
@@ -701,11 +701,24 @@ NAV_ITEMS = [
 
 
 def public_header(active="landing"):
-    logo_col, spacer_col, language_col, login_col, signup_col = st.columns(
-        [1.45, 3.2, .58, .82, .82], vertical_alignment="center"
+    logo_col, nav_col, language_col, login_col, signup_col = st.columns(
+        [1.35, 3.15, .5, .78, .78], vertical_alignment="center", gap="small"
     )
     with logo_col:
         brand()
+    with nav_col:
+        with st.container(key=f"public_nav_{active}"):
+            nav_slots = st.columns([.62, 1.25, .88, .88, .88], vertical_alignment="center", gap="small")
+            for slot, (route, label) in zip(nav_slots, NAV_ITEMS):
+                with slot:
+                    key_prefix = "active_nav" if active == route else "nav"
+                    st.button(
+                        label,
+                        key=f"{key_prefix}_{route}_{active}",
+                        use_container_width=True,
+                        on_click=set_page,
+                        args=(route,),
+                    )
     with language_col:
         html('''
         <details class="lang-menu">
@@ -719,24 +732,6 @@ def public_header(active="landing"):
         st.button("Giriş Yap", key=f"login_cta_{active}", use_container_width=True, on_click=set_page, args=("demo_login",))
     with signup_col:
         st.button("Üye Ol", key=f"signup_cta_{active}", use_container_width=True, on_click=set_page, args=("demo_login",))
-
-    # Keep the public navigation on its own full-width row. This avoids it being
-    # clipped by Streamlit's responsive header columns on narrower deployments.
-    with st.container(key=f"public_nav_{active}"):
-        left_space, *nav_slots, right_space = st.columns(
-            [.7, 1, 1.35, 1, 1, 1, .7], vertical_alignment="center"
-        )
-        for slot, (route, label) in zip(nav_slots, NAV_ITEMS):
-            with slot:
-                key_prefix = "active_nav" if active == route else "nav"
-                st.button(
-                    label,
-                    key=f"{key_prefix}_{route}_{active}",
-                    use_container_width=True,
-                    on_click=set_page,
-                    args=(route,),
-                )
-
 
 def public_footer():
     html('<div class="public-footer">Menteleven · Futbol kulüpleri için oyuncu wellbeing platformu · Demo sürümü</div>')
