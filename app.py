@@ -226,6 +226,18 @@ html(
     .brand-home-link { display:inline-flex; align-items:center; text-decoration:none !important; cursor:pointer; border-radius:10px; }
     .brand-home-link:focus-visible { outline:2px solid #39e58c; outline-offset:4px; }
     .brand-logo { display:block; width:190px; max-width:100%; height:auto; }
+    .st-key-brand_home button {
+        width:190px !important; max-width:100% !important; height:46px !important; min-height:46px !important;
+        padding:0 !important; border:0 !important; border-radius:10px !important;
+        background-color:transparent !important;
+        background-image:url("__LOGO_IMAGE__") !important;
+        background-position:left center !important; background-repeat:no-repeat !important;
+        background-size:contain !important; box-shadow:none !important; transform:none !important;
+        color:transparent !important; font-size:0 !important;
+    }
+    .st-key-brand_home button p, .st-key-brand_home button span { color:transparent !important; font-size:0 !important; }
+    .st-key-brand_home button:hover { background-color:rgba(255,255,255,.025) !important; }
+    .st-key-brand_home button:focus-visible { outline:2px solid #39e58c !important; outline-offset:3px !important; }
     .brand-mark {
         width:35px; height:35px; display:grid; place-items:center;
         border-radius:10px; background:linear-gradient(145deg, var(--green), #18b96a);
@@ -701,11 +713,18 @@ html(
     """.replace("__HERO_IMAGE__", HERO_IMAGE)
        .replace("__HEATMAP_IMAGE__", HEATMAP_IMAGE)
        .replace("__PORTRAIT_SHEET__", PORTRAIT_SHEET)
+       .replace("__LOGO_IMAGE__", LOGO_IMAGE)
 )
 
 
 def brand():
-    html(f'''<div class="brand"><a class="brand-home-link" href="?page=landing" target="_self" aria-label="Menteleven ana sayfa"><img class="brand-logo" src="{LOGO_IMAGE}" alt="Menteleven"></a></div>''')
+    st.button(
+        "Menteleven ana sayfa",
+        key="brand_home",
+        help="Ana sayfaya dön",
+        on_click=set_page,
+        args=("landing",),
+    )
 
 
 NAV_ITEMS = [
